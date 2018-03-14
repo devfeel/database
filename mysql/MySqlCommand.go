@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"sync"
-	"emoney.cn/component/database/internal"
+	"github.com/devfeel/database/internal"
 	"fmt"
 )
 

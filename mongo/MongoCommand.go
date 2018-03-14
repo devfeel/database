@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"emoney.cn/component/database/internal"
+	"github.com/devfeel/database/internal"
 )
 
 type MongoCommand struct {

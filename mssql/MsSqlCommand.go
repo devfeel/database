@@ -5,7 +5,7 @@ import (
 	_ "github.com/denisenkom/go-mssqldb"
 	"strings"
 	"sync"
-	"emoney.cn/component/database/internal"
+	"github.com/devfeel/database/internal"
 	"fmt"
 )
 
