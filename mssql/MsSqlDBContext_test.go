@@ -15,7 +15,17 @@ var(
 )
 
 func TestMsSqlDBContext_FindOne(t *testing.T) {
-	result, err:=db.FindOne("SELECT TOP 10 * FROM [Demo]")
+	result := new(Demo)
+	err:=db.FindOne(result, "SELECT TOP 10 * FROM [Demo]")
+	if err!= nil{
+		t.Error(err)
+	}else{
+		t.Log(result)
+	}
+}
+
+func TestMsSqlDBContext_FindOneMap(t *testing.T) {
+	result, err:=db.FindOneMap("SELECT TOP 10 * FROM [Demo]")
 	if err!= nil{
 		t.Error(err)
 		return
@@ -23,8 +33,9 @@ func TestMsSqlDBContext_FindOne(t *testing.T) {
 	t.Log(result)
 }
 
+
 func TestMsSqlDBContext_FindMap(t *testing.T) {
-	result, err:=db.FindMap("SELECT TOP 10 * FROM [Demo]")
+	result, err:=db.FindListMap("SELECT TOP 10 * FROM [Demo]")
 	if err!= nil{
 		t.Error(err)
 		return

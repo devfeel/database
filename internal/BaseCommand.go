@@ -88,25 +88,52 @@ func  (cmd *BaseCommand) MapScan(r ColScanner, dest map[string]interface{}) erro
 
 func (cmd *BaseCommand) StructScan(rows *sql.Rows, dest interface{})error{
 	var err error
+	var isSlice bool
 	destValue := reflect.ValueOf(dest)
-	destSlice := reflect.Indirect(destValue)
-	elemType := reflectx.GetSliceType(destValue)
-	if elemType.Kind() != reflect.Ptr {
-		return errors.New("slice elem must ptr ")
+
+	_, err = reflectx.BaseType(destValue.Type(), reflect.Slice)
+	if err!= nil{
+		isSlice = false
+	}else{
+		isSlice = true
 	}
 
-	for rows.Next() {
-		rowMap := make(map[string]interface{})
-		err = cmd.MapScan(rows, rowMap)
-		if err != nil {
-			return errors.New("map data error" + err.Error())
+	if isSlice {
+		destSlice := reflect.Indirect(destValue)
+		elemType := reflectx.GetSliceType(destValue)
+		if elemType.Kind() != reflect.Ptr {
+			return errors.New("slice elem must ptr ")
 		}
-		elem := reflect.New(elemType.Elem())
-		err = mapper.MapperMap(rowMap, elem.Interface())
-		if err != nil{
-			return errors.New("map data error" + err.Error())
-		}else{
-			destSlice.Set(reflect.Append(destSlice, elem))
+
+		for rows.Next() {
+			rowMap := make(map[string]interface{})
+			err = cmd.MapScan(rows, rowMap)
+			if err != nil {
+				return errors.New("map data error" + err.Error())
+			}
+			elem := reflect.New(elemType.Elem())
+			err = mapper.MapperMap(rowMap, elem.Interface())
+			if err != nil {
+				return errors.New("map data error" + err.Error())
+			} else {
+				destSlice.Set(reflect.Append(destSlice, elem))
+			}
+		}
+	}else{
+		elemType := destValue.Type()
+		if elemType.Kind() != reflect.Ptr {
+			return errors.New("slice elem must ptr ")
+		}
+		for rows.Next() {
+			rowMap := make(map[string]interface{})
+			err = cmd.MapScan(rows, rowMap)
+			if err != nil {
+				return errors.New("map data error" + err.Error())
+			}
+			err = mapper.MapperMap(rowMap, dest)
+			if err != nil {
+				return errors.New("map data error" + err.Error())
+			}
 		}
 	}
 	return err

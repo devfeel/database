@@ -18,8 +18,20 @@ type PullEventLog struct{
 }
 
 
-func TestMySqlDBContext_FindOne(t *testing.T) {
-	result, err:=db.FindOne("SELECT * FROM PullEventLog limit 1")
+
+
+func TestMsSqlDBContext_FindOne(t *testing.T) {
+	result := new(PullEventLog)
+	err:=db.FindOne(result, "SELECT * FROM PullEventLog limit 1")
+	if err!= nil{
+		t.Error(err)
+	}else{
+		t.Log(result)
+	}
+}
+
+func TestMySqlDBContext_FindOneMap(t *testing.T) {
+	result, err:=db.FindOneMap("SELECT * FROM PullEventLog limit 1")
 	if err!= nil{
 		t.Error(err)
 		return

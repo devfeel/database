@@ -57,7 +57,13 @@ func (ctx *MsSqlDBContext) Delete(sql string, args ...interface{}) (n int64, err
 	return rows, err
 }
 
-func (ctx *MsSqlDBContext) FindOne(sql string, args ...interface{}) (result map[string]interface{}, err error) {
+// FindOne query data with sql and return dest struct
+func (ctx *MsSqlDBContext) FindOne(dest interface{}, sql string, args ...interface{}) (err error) {
+	return ctx.DBCommand.Select(dest, sql, args...)
+}
+
+// FindOneMap query data with sql and return map[string]interface{}
+func (ctx *MsSqlDBContext) FindOneMap(sql string, args ...interface{}) (result map[string]interface{}, err error) {
 	results, err := ctx.DBCommand.Query(sql, args...)
 	if err != nil {
 		return nil, err
@@ -68,14 +74,14 @@ func (ctx *MsSqlDBContext) FindOne(sql string, args ...interface{}) (result map[
 	return results[0], nil
 }
 
-// FindList query data with sql and return struct slice
+// FindList query data with sql and return dest struct slice
 // slice's elem type must ptr
 func (ctx *MsSqlDBContext) FindList(dest interface{}, sql string, args ...interface{}) error {
 	return ctx.DBCommand.Select(dest, sql, args...)
 }
 
-// FindMap query data with sql and return []map[string]interface{}
-func (ctx *MsSqlDBContext) FindMap(sql string, args ...interface{}) (results []map[string]interface{}, err error){
+// FindListMap query data with sql and return []map[string]interface{}
+func (ctx *MsSqlDBContext) FindListMap(sql string, args ...interface{}) (results []map[string]interface{}, err error){
 	return ctx.DBCommand.Query(sql, args...)
 }
 
