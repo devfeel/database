@@ -30,21 +30,16 @@ func TestMySqlDBContext_FindOne(t *testing.T) {
 }
 
 func TestMySqlDBContext_FindList(t *testing.T) {
-	result, err:=db.FindList("SELECT * FROM PullEventLog limit 10")
+	var results []*PullEventLog
+	err:=db.FindList(&results, "SELECT * FROM PullEventLog limit 10")
 	if err!= nil{
 		t.Error(err)
 		return
+	}else {
+		for _, v := range results {
+			t.Log(*v)
+		}
 	}
-	var results []*PullEventLog
-	for _, v:=range result{
-		info := new(PullEventLog)
-		mapper.MapperMap(v, info)
-		results = append(results, info)
-	}
-	for _, v:=range results{
-		t.Log(*v)
-	}
-
 }
 
 func TestMsSqlDBContext_Insert(t *testing.T) {

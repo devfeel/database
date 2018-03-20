@@ -1,5 +1,7 @@
 package mssql
 
+import "strconv"
+
 const (
 	Default_OPEN_CONNS = 50
 	Default_IDLE_CONNS = 50
@@ -66,6 +68,30 @@ func (ctx *MsSqlDBContext) FindOne(sql string, args ...interface{}) (result map[
 	return results[0], nil
 }
 
-func (ctx *MsSqlDBContext) FindList(sql string, args ...interface{}) (results []map[string]interface{}, err error) {
+// FindList query data with sql and return struct slice
+// slice's elem type must ptr
+func (ctx *MsSqlDBContext) FindList(dest interface{}, sql string, args ...interface{}) error {
+	return ctx.DBCommand.Select(dest, sql, args...)
+}
+
+// FindMap query data with sql and return []map[string]interface{}
+func (ctx *MsSqlDBContext) FindMap(sql string, args ...interface{}) (results []map[string]interface{}, err error){
 	return ctx.DBCommand.Query(sql, args...)
+}
+
+// FindListByPage query single table data by skip and take
+// args: args for where string param
+// call demo:
+// var results []*Demo
+// FindListByPage(&results, "Demo", "*", "DemoID = ?", "ID ASC, DemoName DESC", 10, 10, 10000)
+func (ctx *MsSqlDBContext) FindListByPage(dest interface{}, tableName, fields, where, orderBy string, skip, take int, args ...interface{})  (err error) {
+	if fields == ""{
+		fields = "*"
+	}
+	where = "WHERE " + where
+	orderBy = "ORDER BY " + orderBy
+	sql := "SELECT * FROM ( "
+	sql += "SELECT ROW_NUMBER() OVER ("+orderBy+") AS [ROW_NUMBER], "+fields+" FROM " +tableName+" AS t0 WITH(NOLOCK) " + where
+	sql += ") AS tp WHERE [tp].[ROW_NUMBER] BETWEEN "+ strconv.Itoa(skip)+" + 1 AND "+ strconv.Itoa(take)+" + "+ strconv.Itoa(skip)+" ORDER BY [tp].[ROW_NUMBER]"
+	return ctx.DBCommand.Select(dest, sql, args...)
 }

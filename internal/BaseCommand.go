@@ -1,5 +1,13 @@
 package internal
 
+import (
+	"database/sql"
+	"reflect"
+	"github.com/devfeel/mapper"
+	"github.com/devfeel/mapper/reflectx"
+	"errors"
+)
+
 type BaseCommand struct{
 	DriverName string
 	OnTrace func(content interface{})
@@ -76,4 +84,30 @@ func  (cmd *BaseCommand) MapScan(r ColScanner, dest map[string]interface{}) erro
 	}
 
 	return r.Err()
+}
+
+func (cmd *BaseCommand) StructScan(rows *sql.Rows, dest interface{})error{
+	var err error
+	destValue := reflect.ValueOf(dest)
+	destSlice := reflect.Indirect(destValue)
+	elemType := reflectx.GetSliceType(destValue)
+	if elemType.Kind() != reflect.Ptr {
+		return errors.New("slice elem must ptr ")
+	}
+
+	for rows.Next() {
+		rowMap := make(map[string]interface{})
+		err = cmd.MapScan(rows, rowMap)
+		if err != nil {
+			return errors.New("map data error" + err.Error())
+		}
+		elem := reflect.New(elemType.Elem())
+		err = mapper.MapperMap(rowMap, elem.Interface())
+		if err != nil{
+			return errors.New("map data error" + err.Error())
+		}else{
+			destSlice.Set(reflect.Append(destSlice, elem))
+		}
+	}
+	return err
 }

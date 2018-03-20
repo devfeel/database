@@ -117,6 +117,31 @@ func (command *MsSqlCommand) Exec(commandText string, args ...interface{}) (resu
 	return result, err
 }
 
+// Select executes a query that returns dest interface{}, typically a SELECT.
+// The args are for any placeholder parameters in the query.
+func (command *MsSqlCommand) Select(dest interface{}, commandText string, args ...interface{}) (err error) {
+	logTitle := getLogTitle("Select", commandText + fmt.Sprint(args...))
+	sqlPool, err := command.getSqlPool()
+	if err != nil {
+		command.Error(err, logTitle+" getSqlPool error - " + err.Error())
+		return err
+	}
+	rows, err := sqlPool.Query(commandText, args...)
+	if err != nil {
+		command.Error(err, logTitle+" Query error - " + err.Error())
+		return err
+	}else{
+		command.Debug(logTitle+" Query success")
+	}
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
+	return command.StructScan(rows, dest)
+}
+
+
 // Query executes a query that returns rows, typically a SELECT.
 // The args are for any placeholder parameters in the query.
 func (command *MsSqlCommand) Query(commandText string, args ...interface{}) (records []map[string]interface{}, err error) {

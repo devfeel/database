@@ -62,7 +62,14 @@ func (ctx *MySqlDBContext) FindOne(sql string, args ...interface{}) (result map[
 	return results[0], nil
 }
 
-func (ctx *MySqlDBContext) FindList(sql string, args ...interface{}) (results []map[string]interface{}, err error) {
+// FindList query data with sql and return struct slice
+// slice's elem type must ptr
+func (ctx *MySqlDBContext) FindList(dest interface{}, sql string, args ...interface{}) error {
+	return ctx.DBCommand.Select(dest, sql, args...)
+}
+
+// FindMap query data with sql and return []map[string]interface{}
+func (ctx *MySqlDBContext) FindMap(sql string, args ...interface{}) (results []map[string]interface{}, err error){
 	return ctx.DBCommand.Query(sql, args...)
 }
 
