@@ -94,8 +94,12 @@ func (ctx *MsSqlDBContext) FindListByPage(dest interface{}, tableName, fields, w
 	if fields == ""{
 		fields = "*"
 	}
-	where = "WHERE " + where
-	orderBy = "ORDER BY " + orderBy
+	if where != ""{
+		where = "WHERE " + where
+	}
+	if orderBy != ""{
+		orderBy = "ORDER BY " + orderBy
+	}
 	sql := "SELECT * FROM ( "
 	sql += "SELECT ROW_NUMBER() OVER ("+orderBy+") AS [ROW_NUMBER], "+fields+" FROM " +tableName+" AS t0 WITH(NOLOCK) " + where
 	sql += ") AS tp WHERE [tp].[ROW_NUMBER] BETWEEN "+ strconv.Itoa(skip)+" + 1 AND "+ strconv.Itoa(take)+" + "+ strconv.Itoa(skip)+" ORDER BY [tp].[ROW_NUMBER]"
