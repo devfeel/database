@@ -2,6 +2,7 @@ package mssql
 
 import (
 	"testing"
+	"database/sql"
 )
 
 type Demo struct{
@@ -11,14 +12,18 @@ type Demo struct{
 }
 
 var(
-	db = NewMsSqlDBContext("server=127.0.0.1;port1433;database=test;user id=sa;password=123456;encrypt=disable")
+	db = NewMsSqlDBContext("server=192.168.8.92;port1433;database=test;user id=sa;password=123456;encrypt=disable")
 )
 
 func TestMsSqlDBContext_FindOne(t *testing.T) {
 	result := new(Demo)
-	err:=db.FindOne(result, "SELECT TOP 10 * FROM [Demo]")
+	err:=db.FindOne(result, "SELECT * FROM [Demo] WHERE DemoID = 3")
 	if err!= nil{
-		t.Error(err)
+		if err == sql.ErrNoRows{
+			t.Log(err.Error())
+		}else{
+			t.Error(err)
+		}
 	}else{
 		t.Log(result)
 	}

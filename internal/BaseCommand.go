@@ -8,6 +8,10 @@ import (
 	"errors"
 )
 
+const(
+	Zero = 0
+)
+
 type BaseCommand struct{
 	DriverName string
 	OnTrace func(content interface{})
@@ -86,13 +90,13 @@ func  (cmd *BaseCommand) MapScan(r ColScanner, dest map[string]interface{}) erro
 	return r.Err()
 }
 
-func (cmd *BaseCommand) StructScan(rows *sql.Rows, dest interface{})error{
-	var err error
+func (cmd *BaseCommand) StructScan(rows *sql.Rows, dest interface{})(rowsNum int, err error){
+	rowsNum = 0
 	var isSlice bool
 	destValue := reflect.ValueOf(dest)
 
-	_, err = reflectx.BaseType(destValue.Type(), reflect.Slice)
-	if err!= nil{
+	_, errCheckSlice := reflectx.BaseType(destValue.Type(), reflect.Slice)
+	if errCheckSlice!= nil{
 		isSlice = false
 	}else{
 		isSlice = true
@@ -102,19 +106,20 @@ func (cmd *BaseCommand) StructScan(rows *sql.Rows, dest interface{})error{
 		destSlice := reflect.Indirect(destValue)
 		elemType := reflectx.GetSliceType(destValue)
 		if elemType.Kind() != reflect.Ptr {
-			return errors.New("slice elem must ptr ")
+			return Zero, errors.New("slice elem must ptr ")
 		}
 
 		for rows.Next() {
+			rowsNum += 1
 			rowMap := make(map[string]interface{})
 			err = cmd.MapScan(rows, rowMap)
 			if err != nil {
-				return errors.New("map data error" + err.Error())
+				return Zero, errors.New("map data error" + err.Error())
 			}
 			elem := reflect.New(elemType.Elem())
 			err = mapper.MapperMap(rowMap, elem.Interface())
 			if err != nil {
-				return errors.New("map data error" + err.Error())
+				return Zero, errors.New("map data error" + err.Error())
 			} else {
 				destSlice.Set(reflect.Append(destSlice, elem))
 			}
@@ -122,19 +127,22 @@ func (cmd *BaseCommand) StructScan(rows *sql.Rows, dest interface{})error{
 	}else{
 		elemType := destValue.Type()
 		if elemType.Kind() != reflect.Ptr {
-			return errors.New("slice elem must ptr ")
+			return Zero, errors.New("slice elem must ptr ")
 		}
-		for rows.Next() {
+		hasData := rows.Next()
+		if hasData{
 			rowMap := make(map[string]interface{})
 			err = cmd.MapScan(rows, rowMap)
 			if err != nil {
-				return errors.New("map data error" + err.Error())
+				return Zero, errors.New("map data error" + err.Error())
 			}
 			err = mapper.MapperMap(rowMap, dest)
 			if err != nil {
-				return errors.New("map data error" + err.Error())
+				return Zero, errors.New("map data error" + err.Error())
 			}
+		}else{
+			return Zero, sql.ErrNoRows
 		}
 	}
-	return err
+	return rowsNum, err
 }

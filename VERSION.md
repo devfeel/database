@@ -1,5 +1,9 @@
 # database
 
+#### version 0.2.1
+* FindOne增加sql.ErrNoRows，当无对应结果时，返回sql.ErrNoRows
+* 2018-03-28 13:00
+
 #### version 0.2
 * DBCommand新增Select接口，支持传入切片指针，直接mapper struct slice
 * DBContext新增FindOneMap\FindListMap，返回map[string]interface{}\[]map[string]interface{}
