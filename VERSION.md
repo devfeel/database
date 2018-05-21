@@ -1,5 +1,9 @@
 # database
 
+#### version 0.2.2
+* 修复ExecProc无论有无数据均返回空数据BUG
+* 2018-05-21 13:00
+
 #### version 0.2.1
 * FindOne增加sql.ErrNoRows，当无对应结果时，返回sql.ErrNoRows
 * 2018-03-28 13:00

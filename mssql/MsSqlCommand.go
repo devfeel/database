@@ -81,10 +81,8 @@ func (command *MsSqlCommand) ExecProc(procName string, args ...interface{}) (rec
 	records, err = command.Query(sqlStmt, args...)
 	if err != nil {
 		command.Error(err, logTitle+" error - " + err.Error())
-		return nil, err
 	}else{
 		command.Debug(logTitle+" success")
-		return nil, err
 	}
 	return records, err
 }
