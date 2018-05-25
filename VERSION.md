@@ -1,5 +1,9 @@
 # database
 
+#### version 0.3
+* MsSqlDBContext\MySqlDBContext新增Count\QuerySum，返回int64, error
+* MsSqlDBContext\MySqlDBContext新增QueryMax\QueryMin，返回interface{}, error
+* 2018-05-25 13:00
 
 #### version 0.2.2
 * 修复ExecProc无论有无数据均返回空数据BUG

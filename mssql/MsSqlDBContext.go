@@ -1,6 +1,9 @@
 package mssql
 
-import "strconv"
+import (
+	"strconv"
+	"errors"
+)
 
 const (
 	Default_OPEN_CONNS = 50
@@ -86,6 +89,60 @@ func (ctx *MsSqlDBContext) FindList(dest interface{}, sql string, args ...interf
 func (ctx *MsSqlDBContext) FindListMap(sql string, args ...interface{}) (results []map[string]interface{}, err error){
 	return ctx.DBCommand.Query(sql, args...)
 }
+
+// Count query count data with sql, return int64
+func (ctx *MsSqlDBContext) Count(sql string, args ...interface{})(count int64, err error) {
+	result, err := ctx.DBCommand.Query(sql, args...)
+	if err != nil {
+		return 0, err
+	}
+	if result == nil || len(result) == 0 {
+		return 0, errors.New("no data return")
+	}
+	count = result[0][""].(int64)
+	return count, err
+}
+
+// QuerySum query sum data with sql, return int64
+func (ctx *MsSqlDBContext) QuerySum(sql string, args ...interface{})(sum int64, err error) {
+	result, err := ctx.DBCommand.Query(sql, args...)
+	if err != nil {
+		return 0, err
+	}
+	if result == nil || len(result) == 0 {
+		return 0, errors.New("no data return")
+	}
+	sum = result[0][""].(int64)
+	return sum, err
+}
+
+// QueryMax query max value with sql, return interface{}
+func (ctx *MsSqlDBContext) QueryMax(sql string, args ...interface{})(data interface{}, err error) {
+	result, err := ctx.DBCommand.Query(sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	if result == nil || len(result) == 0 {
+		return nil, errors.New("no data return")
+	}
+	data = result[0][""]
+	return data, err
+}
+
+// QueryMin query min value with sql, return interface{}
+func (ctx *MsSqlDBContext) QueryMin(sql string, args ...interface{})(data interface{}, err error) {
+	result, err := ctx.DBCommand.Query(sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	if result == nil || len(result) == 0 {
+		return nil, errors.New("no data return")
+	}
+	data = result[0][""]
+	return data, err
+}
+
+
 
 // FindListByPage query single table data by skip and take
 // args: args for where string param

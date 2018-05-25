@@ -1,5 +1,7 @@
 package mysql
 
+import "errors"
+
 const (
 	Default_OPEN_CONNS = 50
 	Default_IDLE_CONNS = 50
@@ -52,8 +54,9 @@ func (ctx *MySqlDBContext) Delete(sql string, args ...interface{}) (n int64, err
 }
 
 // FindOne query data with sql and return dest struct
-func (ctx *MySqlDBContext) FindOne(dest interface{}, sql string, args ...interface{}) (err error) {
-	return ctx.DBCommand.Select(dest, sql, args...)
+func (ctx *MySqlDBContext) FindOne(dest interface{}, sql string, args ...interface{}) error {
+	_, err :=ctx.DBCommand.Select(dest, sql, args...)
+	return err
 }
 
 // FindOneMap query data with sql and return map[string]interface{}
@@ -71,7 +74,8 @@ func (ctx *MySqlDBContext) FindOneMap(sql string, args ...interface{}) (result m
 // FindList query data with sql and return dest struct slice
 // slice's elem type must ptr
 func (ctx *MySqlDBContext) FindList(dest interface{}, sql string, args ...interface{}) error {
-	return ctx.DBCommand.Select(dest, sql, args...)
+	_, err:= ctx.DBCommand.Select(dest, sql, args...)
+	return err
 }
 
 // FindListMap query data with sql and return []map[string]interface{}
@@ -79,3 +83,54 @@ func (ctx *MySqlDBContext) FindListMap(sql string, args ...interface{}) (results
 	return ctx.DBCommand.Query(sql, args...)
 }
 
+// Count query count data with sql, return int64
+func (ctx *MySqlDBContext) Count(sql string, args ...interface{})(count int64, err error) {
+	result, err := ctx.DBCommand.Query(sql, args...)
+	if err != nil {
+		return 0, err
+	}
+	if result == nil || len(result) == 0 {
+		return 0, errors.New("no data return")
+	}
+	count = result[0][""].(int64)
+	return count, err
+}
+
+// QuerySum query sum data with sql, return int64
+func (ctx *MySqlDBContext) QuerySum(sql string, args ...interface{})(sum int64, err error) {
+	result, err := ctx.DBCommand.Query(sql, args...)
+	if err != nil {
+		return 0, err
+	}
+	if result == nil || len(result) == 0 {
+		return 0, errors.New("no data return")
+	}
+	sum = result[0][""].(int64)
+	return sum, err
+}
+
+// QueryMax query max value with sql, return interface{}
+func (ctx *MySqlDBContext) QueryMax(sql string, args ...interface{})(data interface{}, err error) {
+	result, err := ctx.DBCommand.Query(sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	if result == nil || len(result) == 0 {
+		return nil, errors.New("no data return")
+	}
+	data = result[0][""]
+	return data, err
+}
+
+// QueryMin query min value with sql, return interface{}
+func (ctx *MySqlDBContext) QueryMin(sql string, args ...interface{})(data interface{}, err error) {
+	result, err := ctx.DBCommand.Query(sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	if result == nil || len(result) == 0 {
+		return nil, errors.New("no data return")
+	}
+	data = result[0][""]
+	return data, err
+}

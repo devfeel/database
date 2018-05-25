@@ -96,17 +96,17 @@ func (command *MySqlCommand) Exec(commandText string, args ...interface{}) (resu
 
 // Select executes a query that returns dest interface{}, typically a SELECT.
 // The args are for any placeholder parameters in the query.
-func (command *MySqlCommand) Select(dest interface{}, commandText string, args ...interface{}) (err error) {
+func (command *MySqlCommand) Select(dest interface{}, commandText string, args ...interface{})  (rowsNum int, err error) {
 	logTitle := getLogTitle("Select", commandText + fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
 		command.Error(err, logTitle+" getSqlPool error - " + err.Error())
-		return err
+		return internal.Zero, err
 	}
 	rows, err := sqlPool.Query(commandText, args...)
 	if err != nil {
 		command.Error(err, logTitle+" Query error - " + err.Error())
-		return err
+		return internal.Zero, err
 	}else{
 		command.Debug(logTitle+" Query success")
 	}

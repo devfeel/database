@@ -29,6 +29,43 @@ func TestMsSqlDBContext_FindOne(t *testing.T) {
 	}
 }
 
+func TestMsSqlDBContext_Count(t *testing.T) {
+	count, err:=db.Count("SELECT count(0) FROM [Demo]")
+	if err!= nil{
+		t.Error(err)
+	}else{
+		t.Log(count)
+	}
+}
+
+func TestMsSqlDBContext_QuerySum(t *testing.T) {
+	sum, err:=db.Count("SELECT Sum(DemoID) FROM [Demo]")
+	if err!= nil{
+		t.Error(err)
+	}else{
+		t.Log(sum)
+	}
+}
+
+
+func TestMsSqlDBContext_QueryMax(t *testing.T) {
+	max, err:=db.QueryMax("SELECT Max(DemoID) FROM [Demo]")
+	if err!= nil{
+		t.Error(err)
+	}else{
+		t.Log(max)
+	}
+}
+
+func TestMsSqlDBContext_QueryMin(t *testing.T) {
+	min, err:=db.QueryMin("SELECT Min(DemoName) FROM [Demo]")
+	if err!= nil{
+		t.Error(err)
+	}else{
+		t.Log(min)
+	}
+}
+
 func TestMsSqlDBContext_FindOneMap(t *testing.T) {
 	result, err:=db.FindOneMap("SELECT TOP 10 * FROM [Demo]")
 	if err!= nil{
