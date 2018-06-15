@@ -6,7 +6,15 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/devfeel/database/internal"
+	"sync"
 )
+
+var mgoSessionPool *sync.Map
+
+func init(){
+	mgoSessionPool = new(sync.Map)
+}
+
 
 type MongoCommand struct {
 	internal.BaseCommand
@@ -43,7 +51,7 @@ func (cmd *MongoCommand) SetConn(conn, dbName string) error {
 }
 
 func (cmd *MongoCommand) GetDataBase() (*mgo.Database, error) {
-	session, err := mgo.Dial(cmd.Connection)
+	session, err := getSessionCopy(cmd.Connection)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +63,7 @@ func (cmd *MongoCommand) GetDataBase() (*mgo.Database, error) {
 }
 
 func (impl *MongoCommand) getDataBaseByName(dbName string) (*mgo.Database, error) {
-	session, err := mgo.Dial(impl.Connection)
+	session, err := getSessionCopy(impl.Connection)
 	if err != nil {
 		return nil, err
 	}
@@ -332,3 +340,20 @@ func getLogTitle(commandName string, collectionName string) string {
 }
 
 
+// getSessionCopy get seesion copy with conn from pool
+func getSessionCopy(conn string) (*mgo.Session, error){
+	data, isOk:=mgoSessionPool.Load(conn)
+	if isOk{
+		session, isSuccess := data.(*mgo.Session)
+		if isSuccess{
+			return session.Clone(), nil
+		}
+	}
+	session, err := mgo.Dial(conn)
+	if err!= nil{
+		return nil, err
+	}else{
+		mgoSessionPool.Store(conn, session)
+		return session.Clone(), nil
+	}
+}

@@ -1,5 +1,9 @@
 # database
 
+#### version 0.3.1
+* Fixed Bug: fixed mongodb conn pool not effective
+* 2018-06-15 10:00
+
 #### version 0.3
 * MsSqlDBContext\MySqlDBContext新增Count\QuerySum，返回int64, error
 * MsSqlDBContext\MySqlDBContext新增QueryMax\QueryMin，返回interface{}, error
