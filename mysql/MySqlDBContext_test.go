@@ -18,9 +18,16 @@ type PullEventLog struct{
 }
 
 
+func TestMySqlDBContext_ExecProc(t *testing.T) {
+	result, err:=db.ExecProc("InsertDemo",889,"insert proc")
+	if err!= nil{
+		t.Error(err)
+		return
+	}
+	t.Log(result)
+}
 
-
-func TestMsSqlDBContext_FindOne(t *testing.T) {
+func TestMySqlDBContext_FindOne(t *testing.T) {
 	result := new(PullEventLog)
 	err:=db.FindOne(result, "SELECT * FROM PullEventLog limit 1")
 	if err!= nil{

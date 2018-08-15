@@ -6,6 +6,7 @@ import (
 	"sync"
 	"github.com/devfeel/database/internal"
 	"fmt"
+	"strings"
 )
 
 var (
@@ -63,7 +64,27 @@ func (command *MySqlCommand) getSqlPool() (*sql.DB, error) {
 		}
 	}
 	return pool, nil
+}
 
+// ExecProc executes proc with name
+func (command *MySqlCommand) ExecProc(procName string, args ...interface{}) (records []map[string]interface{}, err error) {
+	var keyValue string
+	for range args {
+		if keyValue != "" {
+			keyValue += ","
+		}
+		keyValue += "?"
+	}
+	sqlStmt := "CALL " + procName + " (#KEY=VALUE#)"
+	sqlStmt = strings.Replace(sqlStmt, "#KEY=VALUE#", keyValue, -1)
+	logTitle := getLogTitle("ExecProc", sqlStmt)
+	records, err = command.Query(sqlStmt, args...)
+	if err != nil {
+		command.Error(err, logTitle+" error - " + err.Error())
+	}else{
+		command.Debug(logTitle+" success")
+	}
+	return records, err
 }
 
 // Exec executes a prepared statement with the given arguments and

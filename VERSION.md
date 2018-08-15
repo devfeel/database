@@ -1,5 +1,9 @@
 # database
 
+#### version 0.3.2
+* New Feature: add mysql ExecProc
+* 2018-08-15 10:00
+
 #### version 0.3.1
 * Fixed Bug: fixed mongodb conn pool not effective
 * 2018-06-15 10:00

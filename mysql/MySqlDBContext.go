@@ -26,6 +26,11 @@ func (ctx *MySqlDBContext) Init(conn string){
 	ctx.DBCommand.PoolIdleConnsCount = Default_IDLE_CONNS
 }
 
+// ExecProc executes proc with name
+func (ctx *MySqlDBContext) ExecProc(procName string, args ...interface{}) (records []map[string]interface{}, err error) {
+	return ctx.DBCommand.ExecProc(procName, args...)
+}
+
 func (ctx *MySqlDBContext) Insert(sql string, args ...interface{}) (n int64, err error) {
 	result, err := ctx.DBCommand.Exec(sql, args...)
 	if err != nil {
