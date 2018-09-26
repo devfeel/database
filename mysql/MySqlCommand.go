@@ -2,11 +2,11 @@ package mysql
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
-	"sync"
-	"github.com/devfeel/database/internal"
 	"fmt"
+	"github.com/devfeel/database/internal"
+	_ "github.com/go-sql-driver/mysql"
 	"strings"
+	"sync"
 )
 
 var (
@@ -170,6 +170,37 @@ func (command *MySqlCommand) Query(commandText string, args ...interface{}) (rec
 		records = append(records, dest)
 	}
 	return records, err
+}
+
+// QueryCount executes a query that returns count column
+func (command *MySqlCommand) QueryCount(commandText string, args ...interface{}) (int64, error) {
+	logTitle := getLogTitle("QueryCount", commandText+fmt.Sprint(args...))
+	sqlPool, err := command.getSqlPool()
+	if err != nil {
+		command.Error(err, logTitle+" getSqlPool error - "+err.Error())
+		return 0, err
+	}
+	rows, err := sqlPool.Query(commandText, args...)
+	if err != nil {
+		command.Error(err, logTitle+" Query error - "+err.Error())
+		return 0, err
+	} else {
+		command.Debug(logTitle + " Query success")
+	}
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
+	count := int64(0)
+	if rows.Next() {
+		err = rows.Scan(&count)
+		if err != nil {
+			command.Error(err, logTitle+" scan count error - "+err.Error())
+			return 0, err
+		}
+	}
+	return count, nil
 }
 
 

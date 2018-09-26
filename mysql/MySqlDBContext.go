@@ -1,6 +1,8 @@
 package mysql
 
-import "errors"
+import (
+	"errors"
+)
 
 const (
 	Default_OPEN_CONNS = 50
@@ -90,28 +92,12 @@ func (ctx *MySqlDBContext) FindListMap(sql string, args ...interface{}) (results
 
 // Count query count data with sql, return int64
 func (ctx *MySqlDBContext) Count(sql string, args ...interface{})(count int64, err error) {
-	result, err := ctx.DBCommand.Query(sql, args...)
-	if err != nil {
-		return 0, err
-	}
-	if result == nil || len(result) == 0 {
-		return 0, errors.New("no data return")
-	}
-	count = result[0][""].(int64)
-	return count, err
+	return ctx.DBCommand.QueryCount(sql, args...)
 }
 
 // QuerySum query sum data with sql, return int64
 func (ctx *MySqlDBContext) QuerySum(sql string, args ...interface{})(sum int64, err error) {
-	result, err := ctx.DBCommand.Query(sql, args...)
-	if err != nil {
-		return 0, err
-	}
-	if result == nil || len(result) == 0 {
-		return 0, errors.New("no data return")
-	}
-	sum = result[0][""].(int64)
-	return sum, err
+	return ctx.DBCommand.QueryCount(sql, args...)
 }
 
 // QueryMax query max value with sql, return interface{}

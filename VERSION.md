@@ -1,5 +1,9 @@
 # database
 
+#### version 0.3.3
+* Fixed Bug: fixed mysql Count() can not get correct value
+* 2018-09-26 10:00
+
 #### version 0.3.2
 * New Feature: add mysql ExecProc
 * 2018-08-15 10:00
