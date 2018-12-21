@@ -1,5 +1,9 @@
 # database
 
+#### version 0.3.4
+* New Feature: add mongodb Count
+* 2018-21-21 10:00
+
 #### version 0.3.3
 * Fixed Bug: fixed mysql Count() can not get correct value
 * 2018-09-26 10:00

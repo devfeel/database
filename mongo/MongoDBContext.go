@@ -83,6 +83,15 @@ func (ctx *MongoDBContext) FindList(selector interface{}, skip, limit int, resul
 	return ctx.DBCommand.FindList(ctx.DefaultCollectionName, selector, skip, limit, result)
 }
 
+/*获取指定条件的记录行数
+* Author: https://github.com/devfeel
+* LastUpdateTime: 2018-12-21 10:00
+* 如果失败，则返回具体的error，成功则返回记录数
+ */
+func (ctx *MongoDBContext) Count(collectionName string, selector interface{}) (count int, err error)  {
+	return ctx.DBCommand.Count(ctx.DefaultCollectionName, selector)
+}
+
 /*更新指定条件的数据，如果没有找到则直接插入数据
 * LastUpdateTime: 2018-01-02 10:00
 * 如果失败，则返回具体的error，成功则返回nil

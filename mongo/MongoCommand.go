@@ -78,7 +78,7 @@ func (impl *MongoCommand) getDataBaseByName(dbName string) (*mgo.Database, error
 }
 
 /*新增Json数据插入指定的Collection
-* Author: Panxinming
+* Author: https://github.com/devfeel
 * LastUpdateTime: 2016-10-17 10:00
 * 如果失败，则返回具体的error，成功则返回nil
  */
@@ -123,7 +123,7 @@ func (cmd *MongoCommand) InsertJson(collectionName, jsonData string) error {
 }
 
 /*新增实体数据插入指定Collection
-* Author: Panxinming
+* Author: https://github.com/devfeel
 * LastUpdateTime: 2017-02-26 10:00
 * 如果失败，则返回具体的error，成功则返回nil
  */
@@ -147,7 +147,7 @@ func (cmd *MongoCommand) InsertBlob(collectionName string, data interface{}) err
 }
 
 /*更新指定的实体数据
-* Author: Panxinming
+* Author: https://github.com/devfeel
 * LastUpdateTime: 2017-11-11 10:00
 * 如果失败，则返回具体的error，成功则返回nil
  */
@@ -170,8 +170,9 @@ func (cmd *MongoCommand) UpdateBlob(collectionName string, selector interface{},
 	return err
 }
 
+
 /*更新指定字段
-* Author: Panxinming
+* Author: https://github.com/devfeel
 * LastUpdateTime: 2017-11-11 10:00
 * 如果失败，则返回具体的error，成功则返回nil
  */
@@ -195,7 +196,7 @@ func (cmd *MongoCommand) Update(collectionName string, selector interface{}, dat
 }
 
 /*移除指定查询条件的记录
-* Author: Panxinming
+* Author: https://github.com/devfeel
 * selectot:
 * LastUpdateTime: 2017-11-11 14:00
 * 如果失败，返回具体error，成功则返回nil
@@ -220,7 +221,7 @@ func (cmd *MongoCommand) Remove(collectionName string, selector interface{}) err
 }
 
 /*查询指定查询条件的第一条单条数据
-* Author: Panxinming
+* Author: https://github.com/devfeel
 * selectot:
 * LastUpdateTime: 2017-02-22 10:00
 * 如果失败，result为具体的document并返回具体error，成功则返回nil
@@ -245,7 +246,7 @@ func (cmd *MongoCommand) FindOne(collectionName string, selector interface{}, re
 }
 
 /*查询指定查询条件的最后一条数据
-* Author: Panxinming
+* Author: https://github.com/devfeel
 * selectot:
 * LastUpdateTime: 2017-11-11 10:00
 * 如果失败，result为具体的document并返回具体error，成功则返回nil
@@ -270,7 +271,7 @@ func (cmd *MongoCommand) FindLastOne(collectionName string, selector interface{}
 }
 
 /*查询指定查询条件的批量数据
-* Author: Panxinming
+* Author: https://github.com/devfeel
 * selectot:
 * LastUpdateTime: 2017-11-11 10:00
 * 支持分页，如果不需要分页，skip、limit请传入0
@@ -300,7 +301,7 @@ func (cmd *MongoCommand) FindList(collectionName string, selector interface{}, s
 }
 
 /*更新指定条件的数据，如果没有找到则直接插入数据
-* Author: Panxinming
+* Author: https://github.com/devfeel
 * LastUpdateTime: 2017-02-22 10:00
 * 如果失败，则返回具体的error，成功则返回nil
  */
@@ -322,6 +323,31 @@ func (cmd *MongoCommand) UpsertBlob(collectionName string, selector interface{},
 	}
 	return errUpsert
 }
+
+/*获取指定条件的记录行数
+* Author: https://github.com/devfeel
+* LastUpdateTime: 2018-12-21 10:00
+* 如果失败，则返回具体的error，成功则返回记录数
+ */
+func (cmd *MongoCommand) Count(collectionName string, selector interface{}) (count int, err error) {
+	logTitle := getLogTitle("Count", collectionName)
+	db, err := cmd.GetDataBase()
+	if err != nil {
+		cmd.Error(err, logTitle+"getDataBase error - "+err.Error())
+		return 0, err
+	}
+	defer db.Session.Close()
+
+	c := db.C(collectionName)
+	count, err = c.Find(selector).Count()
+	if err != nil {
+		cmd.Error(err, logTitle+"error - "+err.Error())
+	} else {
+		cmd.Debug(logTitle + "Success")
+	}
+	return count, err
+}
+
 
 func (cmd *MongoCommand) GetStat() (result map[string]interface{}, err error) {
 	db, err := cmd.GetDataBase()
