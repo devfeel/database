@@ -88,7 +88,7 @@ func (ctx *MongoDBContext) FindList(selector interface{}, skip, limit int, resul
 * LastUpdateTime: 2018-12-21 10:00
 * 如果失败，则返回具体的error，成功则返回记录数
  */
-func (ctx *MongoDBContext) Count(collectionName string, selector interface{}) (count int, err error)  {
+func (ctx *MongoDBContext) Count(selector interface{}) (count int, err error)  {
 	return ctx.DBCommand.Count(ctx.DefaultCollectionName, selector)
 }
 
