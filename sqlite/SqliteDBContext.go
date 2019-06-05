@@ -1,13 +1,15 @@
 package sqlite
 
 import (
-	"errors"
 	"database/sql"
+	"errors"
 )
 
 const (
-	Default_OPEN_CONNS = 50
-	Default_IDLE_CONNS = 50
+	Default_OPEN_CONNS    = 50
+	Default_IDLE_CONNS    = 50
+	Default_FieldName_MAX = "MAX"
+	Default_FieldName_MIN = "MIN"
 )
 
 type SqliteDBContext struct {
@@ -21,7 +23,7 @@ func NewSqliteDBContext(connString string) *SqliteDBContext {
 	return db
 }
 
-func (ctx *SqliteDBContext) Init(conn string){
+func (ctx *SqliteDBContext) Init(conn string) {
 	ctx.DBCommand = new(SqliteCommand)
 	ctx.DBCommand.DriverName = DriverName
 	ctx.DBCommand.Connection = conn
@@ -63,7 +65,7 @@ func (ctx *SqliteDBContext) Delete(sql string, args ...interface{}) (n int64, er
 
 // FindOne query data with sql and return dest struct
 func (ctx *SqliteDBContext) FindOne(dest interface{}, sql string, args ...interface{}) error {
-	_, err :=ctx.DBCommand.Select(dest, sql, args...)
+	_, err := ctx.DBCommand.Select(dest, sql, args...)
 	return err
 }
 
@@ -82,27 +84,27 @@ func (ctx *SqliteDBContext) FindOneMap(sql string, args ...interface{}) (result 
 // FindList query data with sql and return dest struct slice
 // slice's elem type must ptr
 func (ctx *SqliteDBContext) FindList(dest interface{}, sql string, args ...interface{}) error {
-	_, err:= ctx.DBCommand.Select(dest, sql, args...)
+	_, err := ctx.DBCommand.Select(dest, sql, args...)
 	return err
 }
 
 // FindListMap query data with sql and return []map[string]interface{}
-func (ctx *SqliteDBContext) FindListMap(sql string, args ...interface{}) (results []map[string]interface{}, err error){
+func (ctx *SqliteDBContext) FindListMap(sql string, args ...interface{}) (results []map[string]interface{}, err error) {
 	return ctx.DBCommand.Query(sql, args...)
 }
 
 // Count query count data with sql, return int64
-func (ctx *SqliteDBContext) Count(sql string, args ...interface{})(count int64, err error) {
+func (ctx *SqliteDBContext) Count(sql string, args ...interface{}) (count int64, err error) {
 	return ctx.DBCommand.QueryCount(sql, args...)
 }
 
 // QuerySum query sum data with sql, return int64
-func (ctx *SqliteDBContext) QuerySum(sql string, args ...interface{})(sum int64, err error) {
+func (ctx *SqliteDBContext) QuerySum(sql string, args ...interface{}) (sum int64, err error) {
 	return ctx.DBCommand.QueryCount(sql, args...)
 }
 
 // QueryMax query max value with sql, return interface{}
-func (ctx *SqliteDBContext) QueryMax(sql string, args ...interface{})(data interface{}, err error) {
+func (ctx *SqliteDBContext) QueryMax(sql string, args ...interface{}) (data interface{}, err error) {
 	result, err := ctx.DBCommand.Query(sql, args...)
 	if err != nil {
 		return nil, err
@@ -110,12 +112,12 @@ func (ctx *SqliteDBContext) QueryMax(sql string, args ...interface{})(data inter
 	if result == nil || len(result) == 0 {
 		return nil, errors.New("no data return")
 	}
-	data = result[0][""]
+	data = result[0][Default_FieldName_MAX]
 	return data, err
 }
 
 // QueryMin query min value with sql, return interface{}
-func (ctx *SqliteDBContext) QueryMin(sql string, args ...interface{})(data interface{}, err error) {
+func (ctx *SqliteDBContext) QueryMin(sql string, args ...interface{}) (data interface{}, err error) {
 	result, err := ctx.DBCommand.Query(sql, args...)
 	if err != nil {
 		return nil, err
@@ -123,6 +125,6 @@ func (ctx *SqliteDBContext) QueryMin(sql string, args ...interface{})(data inter
 	if result == nil || len(result) == 0 {
 		return nil, errors.New("no data return")
 	}
-	data = result[0][""]
+	data = result[0][Default_FieldName_MIN]
 	return data, err
 }
