@@ -183,5 +183,5 @@ func (command *SqliteCommand) QueryCount(commandText string, args ...interface{}
 
 // getLogTitle return log title
 func getLogTitle(commandName, commandText string) string {
-	return "database.MySqlCommand:" + commandName + " [" + commandText + "]"
+	return "database.SqliteCommand:" + commandName + " [" + commandText + "]"
 }

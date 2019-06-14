@@ -1,5 +1,9 @@
 # database
 
+#### version 0.4.2
+* Bug Fixed: modify mysql to sqlite in logTitle
+* 2019-06-14 14:00
+
 #### version 0.4.1
 * Bug Fixed: modify mysql to sqlite3 in sqlite module
 * Bug Fixed: add Default_FieldName_Max\Min for QueryMax\QueryMin
