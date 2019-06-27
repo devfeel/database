@@ -1,5 +1,10 @@
 # database
 
+#### version 0.4.3
+* Architecture: add interface DBCommand and DBContext for mssql\mysql\sqlite
+* Architecture: make mssql\mysql\sqlite uniform and implement interface DBCommand and DBContext
+* 2019-06-27 23:00
+
 #### version 0.4.2
 * Bug Fixed: modify mysql to sqlite in logTitle
 * 2019-06-14 14:00

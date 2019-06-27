@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/devfeel/database/internal"
 	_ "github.com/mattn/go-sqlite3"
@@ -63,6 +64,10 @@ func (command *SqliteCommand) getSqlPool() (*sql.DB, error) {
 		}
 	}
 	return pool, nil
+}
+
+func (command *SqliteCommand) ExecProc(procName string, args ...interface{}) (records []map[string]interface{}, err error) {
+	return nil, errors.New("sqlite not support proc")
 }
 
 // Exec executes a prepared statement with the given arguments and

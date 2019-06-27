@@ -2,11 +2,11 @@ package mssql
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/denisenkom/go-mssqldb"
+	"github.com/devfeel/database/internal"
 	"strings"
 	"sync"
-	"github.com/devfeel/database/internal"
-	"fmt"
 )
 
 var (
@@ -14,7 +14,7 @@ var (
 	sqlPoolMutex *sync.RWMutex
 )
 
-const(
+const (
 	DriverName = "mssql"
 )
 
@@ -80,9 +80,9 @@ func (command *MsSqlCommand) ExecProc(procName string, args ...interface{}) (rec
 	logTitle := getLogTitle("ExecProc", sqlStmt)
 	records, err = command.Query(sqlStmt, args...)
 	if err != nil {
-		command.Error(err, logTitle+" error - " + err.Error())
-	}else{
-		command.Debug(logTitle+" success")
+		command.Error(err, logTitle+" error - "+err.Error())
+	} else {
+		command.Debug(logTitle + " success")
 	}
 	return records, err
 }
@@ -90,15 +90,15 @@ func (command *MsSqlCommand) ExecProc(procName string, args ...interface{}) (rec
 // Exec executes a prepared statement with the given arguments and
 // returns a Result summarizing the effect of the statement.
 func (command *MsSqlCommand) Exec(commandText string, args ...interface{}) (result sql.Result, err error) {
-	logTitle := getLogTitle("Exec", commandText + fmt.Sprint(args...))
+	logTitle := getLogTitle("Exec", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
-		command.Error(err, logTitle+" getSqlPool error - " + err.Error())
+		command.Error(err, logTitle+" getSqlPool error - "+err.Error())
 		return nil, err
 	}
 	stmt, err := sqlPool.Prepare(commandText)
 	if err != nil {
-		command.Error(err, logTitle+" Prepare error - " + err.Error())
+		command.Error(err, logTitle+" Prepare error - "+err.Error())
 		return nil, err
 	}
 	defer func() {
@@ -107,10 +107,10 @@ func (command *MsSqlCommand) Exec(commandText string, args ...interface{}) (resu
 		}
 	}()
 	result, err = stmt.Exec(args...)
-	if err!=nil{
-		command.Error(err, logTitle+" Exec error - " + err.Error())
-	}else{
-		command.Debug(logTitle+" Exec success")
+	if err != nil {
+		command.Error(err, logTitle+" Exec error - "+err.Error())
+	} else {
+		command.Debug(logTitle + " Exec success")
 	}
 	return result, err
 }
@@ -118,18 +118,18 @@ func (command *MsSqlCommand) Exec(commandText string, args ...interface{}) (resu
 // Select executes a query that returns dest interface{}, typically a SELECT.
 // The args are for any placeholder parameters in the query.
 func (command *MsSqlCommand) Select(dest interface{}, commandText string, args ...interface{}) (rowsNum int, err error) {
-	logTitle := getLogTitle("Select", commandText + fmt.Sprint(args...))
+	logTitle := getLogTitle("Select", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
-		command.Error(err, logTitle+" getSqlPool error - " + err.Error())
+		command.Error(err, logTitle+" getSqlPool error - "+err.Error())
 		return internal.Zero, err
 	}
 	rows, err := sqlPool.Query(commandText, args...)
 	if err != nil {
-		command.Error(err, logTitle+" Query error - " + err.Error())
+		command.Error(err, logTitle+" Query error - "+err.Error())
 		return internal.Zero, err
-	}else{
-		command.Debug(logTitle+" Query success")
+	} else {
+		command.Debug(logTitle + " Query success")
 	}
 	defer func() {
 		if rows != nil {
@@ -139,22 +139,21 @@ func (command *MsSqlCommand) Select(dest interface{}, commandText string, args .
 	return command.StructScan(rows, dest)
 }
 
-
 // Query executes a query that returns rows, typically a SELECT.
 // The args are for any placeholder parameters in the query.
 func (command *MsSqlCommand) Query(commandText string, args ...interface{}) (records []map[string]interface{}, err error) {
-	logTitle := getLogTitle("Query", commandText + fmt.Sprint(args...))
+	logTitle := getLogTitle("Query", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
-		command.Error(err, logTitle+" getSqlPool error - " + err.Error())
+		command.Error(err, logTitle+" getSqlPool error - "+err.Error())
 		return nil, err
 	}
 	rows, err := sqlPool.Query(commandText, args...)
 	if err != nil {
-		command.Error(err, logTitle+" Query error - " + err.Error())
+		command.Error(err, logTitle+" Query error - "+err.Error())
 		return nil, err
-	}else{
-		command.Debug(logTitle+" Query success")
+	} else {
+		command.Debug(logTitle + " Query success")
 	}
 	defer func() {
 		if rows != nil {
@@ -173,6 +172,36 @@ func (command *MsSqlCommand) Query(commandText string, args ...interface{}) (rec
 	return records, err
 }
 
+// QueryCount executes a query that returns count column
+func (command *MsSqlCommand) QueryCount(commandText string, args ...interface{}) (int64, error) {
+	logTitle := getLogTitle("QueryCount", commandText+fmt.Sprint(args...))
+	sqlPool, err := command.getSqlPool()
+	if err != nil {
+		command.Error(err, logTitle+" getSqlPool error - "+err.Error())
+		return 0, err
+	}
+	rows, err := sqlPool.Query(commandText, args...)
+	if err != nil {
+		command.Error(err, logTitle+" Query error - "+err.Error())
+		return 0, err
+	} else {
+		command.Debug(logTitle + " Query success")
+	}
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
+	count := int64(0)
+	if rows.Next() {
+		err = rows.Scan(&count)
+		if err != nil {
+			command.Error(err, logTitle+" scan count error - "+err.Error())
+			return 0, err
+		}
+	}
+	return count, nil
+}
 
 // getLogTitle return log title
 func getLogTitle(commandName, commandText string) string {

@@ -2,55 +2,74 @@ package internal
 
 import (
 	"database/sql"
-	"reflect"
+	"errors"
 	"github.com/devfeel/mapper"
 	"github.com/devfeel/mapper/reflectx"
-	"errors"
+	"reflect"
 )
 
-const(
+const (
 	Zero = 0
 )
 
-type BaseCommand struct{
+type BaseCommand struct {
 	DriverName string
-	OnTrace func(content interface{})
-	OnDebug func(content interface{})
-	OnInfo func(content interface{})
-	OnWarn func(content interface{})
-	OnError func(err error, content interface{})
+	OnTrace    func(content interface{})
+	OnDebug    func(content interface{})
+	OnInfo     func(content interface{})
+	OnWarn     func(content interface{})
+	OnError    func(err error, content interface{})
 }
 
-func (cmd *BaseCommand) Trace(content interface{}){
-	if cmd.OnTrace != nil{
+func (cmd *BaseCommand) SetOnTrace(log func(content interface{})) {
+	cmd.OnTrace = log
+}
+
+func (cmd *BaseCommand) SetOnDebug(log func(content interface{})) {
+	cmd.OnDebug = log
+}
+
+func (cmd *BaseCommand) SetOnInfo(log func(content interface{})) {
+	cmd.OnInfo = log
+}
+
+func (cmd *BaseCommand) SetOnWarn(log func(content interface{})) {
+	cmd.OnWarn = log
+}
+
+func (cmd *BaseCommand) SetOnError(log func(err error, content interface{})) {
+	cmd.OnError = log
+}
+
+func (cmd *BaseCommand) Trace(content interface{}) {
+	if cmd.OnTrace != nil {
 		cmd.OnTrace(content)
 	}
 }
 
-func (cmd *BaseCommand) Debug(content interface{}){
-	if cmd.OnDebug != nil{
+func (cmd *BaseCommand) Debug(content interface{}) {
+	if cmd.OnDebug != nil {
 		cmd.OnDebug(content)
 	}
 }
 
-func (cmd *BaseCommand) Info(content interface{}){
-	if cmd.OnInfo != nil{
+func (cmd *BaseCommand) Info(content interface{}) {
+	if cmd.OnInfo != nil {
 		cmd.OnInfo(content)
 	}
 }
 
-func (cmd *BaseCommand) Warn(content interface{}){
-	if cmd.OnWarn != nil{
+func (cmd *BaseCommand) Warn(content interface{}) {
+	if cmd.OnWarn != nil {
 		cmd.OnWarn(content)
 	}
 }
 
-func (cmd *BaseCommand) Error(err error, content interface{}){
-	if cmd.OnError != nil{
+func (cmd *BaseCommand) Error(err error, content interface{}) {
+	if cmd.OnError != nil {
 		cmd.OnError(err, content)
 	}
 }
-
 
 // ColScanner is an interface used by MapScan
 type ColScanner interface {
@@ -66,7 +85,7 @@ type ColScanner interface {
 // This will modify the map sent to it in place, so reuse the same map with
 // care.  Columns which occur more than once in the result will overwrite
 // each other!
-func  (cmd *BaseCommand) MapScan(r ColScanner, dest map[string]interface{}) error {
+func (cmd *BaseCommand) MapScan(r ColScanner, dest map[string]interface{}) error {
 	// ignore r.started, since we needn't use reflect for anything.
 	columns, err := r.Columns()
 	if err != nil {
@@ -90,15 +109,15 @@ func  (cmd *BaseCommand) MapScan(r ColScanner, dest map[string]interface{}) erro
 	return r.Err()
 }
 
-func (cmd *BaseCommand) StructScan(rows *sql.Rows, dest interface{})(rowsNum int, err error){
+func (cmd *BaseCommand) StructScan(rows *sql.Rows, dest interface{}) (rowsNum int, err error) {
 	rowsNum = 0
 	var isSlice bool
 	destValue := reflect.ValueOf(dest)
 
 	_, errCheckSlice := reflectx.BaseType(destValue.Type(), reflect.Slice)
-	if errCheckSlice!= nil{
+	if errCheckSlice != nil {
 		isSlice = false
-	}else{
+	} else {
 		isSlice = true
 	}
 
@@ -124,13 +143,13 @@ func (cmd *BaseCommand) StructScan(rows *sql.Rows, dest interface{})(rowsNum int
 				destSlice.Set(reflect.Append(destSlice, elem))
 			}
 		}
-	}else{
+	} else {
 		elemType := destValue.Type()
 		if elemType.Kind() != reflect.Ptr {
 			return Zero, errors.New("slice elem must ptr ")
 		}
 		hasData := rows.Next()
-		if hasData{
+		if hasData {
 			rowMap := make(map[string]interface{})
 			err = cmd.MapScan(rows, rowMap)
 			if err != nil {
@@ -140,7 +159,7 @@ func (cmd *BaseCommand) StructScan(rows *sql.Rows, dest interface{})(rowsNum int
 			if err != nil {
 				return Zero, errors.New("map data error" + err.Error())
 			}
-		}else{
+		} else {
 			return Zero, sql.ErrNoRows
 		}
 	}
