@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/devfeel/database"
 	"strconv"
@@ -106,40 +105,28 @@ func (ctx *SqliteDBContext) FindListMap(sql string, args ...interface{}) (result
 	return ctx.dbCommand.Query(sql, args...)
 }
 
-// Count query count data with sql, return int64
-func (ctx *SqliteDBContext) Count(sql string, args ...interface{}) (count int64, err error) {
-	return ctx.dbCommand.QueryCount(sql, args...)
+// Scalar executes a query that returns first row.
+func (ctx *SqliteDBContext) Scalar(sql string, args ...interface{}) (result interface{}, err error) {
+	return ctx.dbCommand.Scalar(sql, args...)
 }
 
-// QuerySum query sum data with sql, return int64
-func (ctx *SqliteDBContext) QuerySum(sql string, args ...interface{}) (sum int64, err error) {
-	return ctx.dbCommand.QueryCount(sql, args...)
+// Count query count data with sql, return int64
+func (ctx *SqliteDBContext) Count(sql string, args ...interface{}) (count int64, err error) {
+	result, err := ctx.dbCommand.Scalar(sql, args...)
+	if err == nil {
+		count = result.(int64)
+	}
+	return count, err
 }
 
 // QueryMax query max value with sql, return interface{}
 func (ctx *SqliteDBContext) QueryMax(sql string, args ...interface{}) (data interface{}, err error) {
-	result, err := ctx.dbCommand.Query(sql, args...)
-	if err != nil {
-		return nil, err
-	}
-	if result == nil || len(result) == 0 {
-		return nil, errors.New("no data return")
-	}
-	data = result[0][Default_FieldName_MAX]
-	return data, err
+	return ctx.dbCommand.Scalar(sql, args...)
 }
 
 // QueryMin query min value with sql, return interface{}
 func (ctx *SqliteDBContext) QueryMin(sql string, args ...interface{}) (data interface{}, err error) {
-	result, err := ctx.dbCommand.Query(sql, args...)
-	if err != nil {
-		return nil, err
-	}
-	if result == nil || len(result) == 0 {
-		return nil, errors.New("no data return")
-	}
-	data = result[0][Default_FieldName_MIN]
-	return data, err
+	return ctx.dbCommand.Scalar(sql, args...)
 }
 
 // FindListByPage query single table data by skip and take
@@ -158,7 +145,13 @@ func (ctx *SqliteDBContext) FindListByPage(dest interface{}, tableName, fields, 
 	if orderBy != "" {
 		orderBy = "ORDER BY " + orderBy
 	}
-	sql := "SELECT " + fields + " FROM " + tableName + " " + where + " " + orderBy + " limit " + strconv.Itoa(skip) + " offset " + strconv.Itoa(take)
+
+	skipStr := ""
+	if skip > 0 {
+		skipStr = " offset " + strconv.Itoa(skip)
+	}
+
+	sql := "SELECT " + fields + " FROM " + tableName + " " + where + " " + orderBy + " limit " + strconv.Itoa(take) + skipStr
 	fmt.Println(sql)
 	_, err := ctx.dbCommand.Select(dest, sql, args...)
 	return err

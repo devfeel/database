@@ -48,6 +48,15 @@ func TestMySqlDBContext_FindOneMap(t *testing.T) {
 	t.Log(info)
 }
 
+func TestMySqlDBContext_FindMap(t *testing.T) {
+	result, err := db.FindListMap("SELECT * FROM [Demo] LIMIT 10")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Log(result)
+}
+
 func TestMySqlDBContext_FindList(t *testing.T) {
 	var results []*PullEventLog
 	err := db.FindList(&results, "SELECT * FROM PullEventLog limit 10")
@@ -61,7 +70,7 @@ func TestMySqlDBContext_FindList(t *testing.T) {
 	}
 }
 
-func TestMsSqlDBContext_Insert(t *testing.T) {
+func TestMySqlDBContext_Insert(t *testing.T) {
 	result, err := db.Insert("INSERT INTO Demo VALUES(?, ?)", 888, "insert ")
 	if err != nil {
 		t.Error(err)
@@ -70,7 +79,7 @@ func TestMsSqlDBContext_Insert(t *testing.T) {
 	t.Log(result)
 }
 
-func TestMsSqlDBContext_Update(t *testing.T) {
+func TestMySqlDBContext_Update(t *testing.T) {
 	result, err := db.Insert("UPDATE Demo set DemoName = ? where DemoID = ?", "asdfasf", 1)
 	if err != nil {
 		t.Error(err)
@@ -92,4 +101,40 @@ func TestMySqlDBContext_FindListByPage(t *testing.T) {
 	var results []*PullEventLog
 	err := db.FindListByPage(&results, "Demo", "*", "DemoID = ?", "ID ASC, DemoName DESC", 10, 10, 10000)
 	fmt.Println(err)
+}
+
+func TestMySqlDBContext_Scalar(t *testing.T) {
+	count, err := db.Scalar("SELECT count(0) FROM [Demo]")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Log(count)
+	}
+}
+
+func TestMySqlDBContext_Count(t *testing.T) {
+	count, err := db.Count("SELECT count(0) FROM [Demo]")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Log(count)
+	}
+}
+
+func TestMySqlDBContext_QueryMax(t *testing.T) {
+	max, err := db.QueryMax("SELECT Max(DemoID) FROM [Demo]")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Log(max)
+	}
+}
+
+func TestMySqlDBContext_QueryMin(t *testing.T) {
+	min, err := db.QueryMin("SELECT Min(DemoName) FROM [Demo]")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Log(min)
+	}
 }

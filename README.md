@@ -7,3 +7,4 @@ include mongodb,mysql,sqlserver,sqlite
 * mysql：github.com/go-sql-driver/mysql
 * mapper: github.com/devfeel/mapper
 * sqlite: github.com/mattn/go-sqlite3
+* postgreSql: github.com/lib/pq

@@ -16,8 +16,8 @@ type DBCommand interface {
 	Error(err error, content interface{})
 
 	ExecProc(procName string, args ...interface{}) (records []map[string]interface{}, err error)
-	Exec(commandText string, args ...interface{}) (result sql.Result, err error)
+	Exec(commandText string, args ...interface{}) (records sql.Result, err error)
 	Select(dest interface{}, commandText string, args ...interface{}) (rowsNum int, err error)
 	Query(commandText string, args ...interface{}) (records []map[string]interface{}, err error)
-	QueryCount(commandText string, args ...interface{}) (int64, error)
+	Scalar(commandText string, args ...interface{}) (data interface{}, err error)
 }

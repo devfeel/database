@@ -76,7 +76,7 @@ func TestSqliteDBContext_Insert(t *testing.T) {
 }
 
 func TestSqliteDBContext_Update(t *testing.T) {
-	result, err := db.Insert("UPDATE Demo set departname = ? where uid = ?", "test", 1)
+	result, err := db.Update("UPDATE Demo set departname = ? where uid = ?", "test", 1)
 	if err != nil {
 		t.Error(err)
 		return
@@ -95,6 +95,42 @@ func TestSqliteDBContext_Delete(t *testing.T) {
 
 func TestSqliteDBContext_FindListByPage(t *testing.T) {
 	var results []*DemoInfo
-	err := db.FindListByPage(&results, "Demo", "*", "DemoID = ?", "ID ASC, DemoName DESC", 10, 10, 10000)
-	fmt.Println(err)
+	err := db.FindListByPage(&results, "Demo", "*", "username = ?", "created ASC", 0, 10, "name1")
+	fmt.Println(err, len(results))
+}
+
+func TestSqliteDBContext_Scalar(t *testing.T) {
+	count, err := db.Scalar("SELECT count(0) FROM [Demo]")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Log(count)
+	}
+}
+
+func TestSqliteDBContext_Count(t *testing.T) {
+	count, err := db.Count("SELECT count(0) FROM [Demo]")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Log(count)
+	}
+}
+
+func TestSqliteDBContext_QueryMax(t *testing.T) {
+	max, err := db.QueryMax("SELECT Max(UID) FROM [Demo]")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Log(max)
+	}
+}
+
+func TestSqliteDBContext_QueryMin(t *testing.T) {
+	min, err := db.QueryMin("SELECT Min(username) FROM [Demo]")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Log(min)
+	}
 }

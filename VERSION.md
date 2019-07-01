@@ -1,5 +1,11 @@
 # database
 
+#### version 0.5
+* New Feature: add postgreSql support
+* Architecture: add Scalar in DBContext & DBCommand used to query data on first column&row
+* Architecture: remove QuerySum in DBContext & DBCommand
+* 2019-07-01 23:00
+
 #### version 0.4.3
 * Architecture: add interface DBCommand and DBContext for mssql\mysql\sqlite
 * Architecture: make mssql\mysql\sqlite uniform and implement interface DBCommand and DBContext

@@ -1,11 +1,12 @@
-package sqlite
+package postgresql
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/devfeel/database/internal"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"
+	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -15,7 +16,7 @@ var (
 )
 
 const (
-	DriverName = "sqlite3"
+	DriverName = "pgsql"
 )
 
 func init() {
@@ -31,7 +32,7 @@ func getSqlPool(connString string) (*sql.DB, bool) {
 }
 
 func setSqlPool(connString string, openConnsCount, idleConnsCount int) (*sql.DB, error) {
-	dbPool, err := sql.Open("sqlite3", connString)
+	dbPool, err := sql.Open("postgres", connString)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +46,7 @@ func setSqlPool(connString string, openConnsCount, idleConnsCount int) (*sql.DB,
 	return dbPool, nil
 }
 
-type SqliteCommand struct {
+type PostgressCommand struct {
 	SqlPool            *sql.DB
 	Connection         string
 	PoolOpenConnsCount int
@@ -54,7 +55,7 @@ type SqliteCommand struct {
 }
 
 // getSqlPool get global conn pool
-func (command *SqliteCommand) getSqlPool() (*sql.DB, error) {
+func (command *PostgressCommand) getSqlPool() (*sql.DB, error) {
 	var err error
 	pool, exists := getSqlPool(command.Connection)
 	if !exists {
@@ -66,13 +67,30 @@ func (command *SqliteCommand) getSqlPool() (*sql.DB, error) {
 	return pool, nil
 }
 
-func (command *SqliteCommand) ExecProc(procName string, args ...interface{}) (records []map[string]interface{}, err error) {
-	return nil, errors.New("sqlite not support proc")
+// ExecProc executes proc with name
+func (command *PostgressCommand) ExecProc(procName string, args ...interface{}) (records []map[string]interface{}, err error) {
+	var keyValue string
+	for i, _ := range args {
+		if keyValue != "" {
+			keyValue += ","
+		}
+		keyValue += "$" + strconv.Itoa((i + 1))
+	}
+	sqlStmt := "SELECT  " + procName + " (#KEY=VALUE#)"
+	sqlStmt = strings.Replace(sqlStmt, "#KEY=VALUE#", keyValue, -1)
+	logTitle := getLogTitle("ExecProc", sqlStmt)
+	records, err = command.Query(sqlStmt, args...)
+	if err != nil {
+		command.Error(err, logTitle+" error - "+err.Error())
+	} else {
+		command.Debug(logTitle + " success")
+	}
+	return records, err
 }
 
 // Exec executes a prepared statement with the given arguments and
 // returns a Result summarizing the effect of the statement.
-func (command *SqliteCommand) Exec(commandText string, args ...interface{}) (result sql.Result, err error) {
+func (command *PostgressCommand) Exec(commandText string, args ...interface{}) (result sql.Result, err error) {
 	logTitle := getLogTitle("Exec", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
@@ -100,7 +118,7 @@ func (command *SqliteCommand) Exec(commandText string, args ...interface{}) (res
 
 // Select executes a query that returns dest interface{}, typically a SELECT.
 // The args are for any placeholder parameters in the query.
-func (command *SqliteCommand) Select(dest interface{}, commandText string, args ...interface{}) (rowsNum int, err error) {
+func (command *PostgressCommand) Select(dest interface{}, commandText string, args ...interface{}) (rowsNum int, err error) {
 	logTitle := getLogTitle("Select", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
@@ -124,7 +142,7 @@ func (command *SqliteCommand) Select(dest interface{}, commandText string, args 
 
 // Query executes a query that returns rows, typically a SELECT.
 // The args are for any placeholder parameters in the query.
-func (command *SqliteCommand) Query(commandText string, args ...interface{}) (records []map[string]interface{}, err error) {
+func (command *PostgressCommand) Query(commandText string, args ...interface{}) (records []map[string]interface{}, err error) {
 	logTitle := getLogTitle("Query", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
@@ -157,7 +175,7 @@ func (command *SqliteCommand) Query(commandText string, args ...interface{}) (re
 
 // Scalar executes a query that returns first row.
 // The args are for any placeholder parameters in the query.
-func (command *SqliteCommand) Scalar(commandText string, args ...interface{}) (interface{}, error) {
+func (command *PostgressCommand) Scalar(commandText string, args ...interface{}) (result interface{}, err error) {
 	logTitle := getLogTitle("Scalar", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
@@ -180,7 +198,7 @@ func (command *SqliteCommand) Scalar(commandText string, args ...interface{}) (i
 	if rows.Next() {
 		err = rows.Scan(&data)
 		if err != nil {
-			command.Error(err, logTitle+" scan data error - "+err.Error())
+			command.Error(err, logTitle+" scan count error - "+err.Error())
 			return nil, err
 		}
 	}
@@ -189,5 +207,5 @@ func (command *SqliteCommand) Scalar(commandText string, args ...interface{}) (i
 
 // getLogTitle return log title
 func getLogTitle(commandName, commandText string) string {
-	return "database.SqliteCommand:" + commandName + " [" + commandText + "]"
+	return "database.PostgressCommand:" + commandName + " [" + commandText + "]"
 }
