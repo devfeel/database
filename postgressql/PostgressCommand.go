@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/a526757124/database/internal"
+	"github.com/devfeel/database/internal"
 	_ "github.com/lib/pq"
 )
 
