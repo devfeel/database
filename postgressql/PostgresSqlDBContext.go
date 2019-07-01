@@ -3,7 +3,6 @@ package postgressql
 import (
 	"errors"
 	"strconv"
-
 	"github.com/devfeel/database"
 )
 
@@ -118,6 +117,10 @@ func (ctx *PostgresSqlDBContext) FindListByPage(dest interface{}, tableName, fie
 	sql := "SELECT " + fields + " FROM " + tableName + " " + where + " " + orderBy + " limit " + strconv.Itoa(take) + " OFFSET " + strconv.Itoa(skip)
 	_, err := ctx.DBCommand.Select(dest, sql, args...)
 	return err
+}
+
+func (ctx *PostgresSqlDBContext) Scalar(sql string,args ...interface{})(result interface{},err error){
+	return ctx.DBCommand.Scalar(sql, args...)
 }
 
 // Count query count data with sql, return int64

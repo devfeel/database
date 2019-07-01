@@ -5,7 +5,7 @@ import (
 )
 
 
-var db = NewPostgresSqlDBContext("host=118.31.32.168 port=5432 user=postgres password=123456 dbname=mytest sslmode=disable")
+var db = NewPostgresSqlDBContext("host=127.0.0.1 port=5432 user=postgres password=123456 dbname=mytest sslmode=disable")
 type UserInfo struct {
 	ID   string `mapper:"id"`
 	Name string `mapper:"name"`
@@ -86,4 +86,37 @@ func TestPostgresSqlDBContext_Delete(t *testing.T) {
 	} else {
 		t.Log(n)
 	}
+}
+
+func TestPostgresSqlDBContext_Scalar(t *testing.T) {
+	sum, err := db.Scalar("select sum(id) from userinfo")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Log(sum)
+    }
+}
+func TestPostgresSqlDBContext_Count(t *testing.T) {
+	count, err := db.Scalar("select count(id) from userinfo")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Log(count)
+    }
+}
+func TestPostgresSqlDBContext_Max(t *testing.T) {
+	max, err := db.Scalar("select max(id) from userinfo")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Log(max)
+    }
+}
+func TestPostgresSqlDBContext_Min(t *testing.T) {
+	min, err := db.Scalar("select min(id) from userinfo")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Log(min)
+    }
 }

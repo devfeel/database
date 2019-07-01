@@ -12,6 +12,7 @@ type DBContext interface {
 	FindList(dest interface{}, sql string, args ...interface{}) error
 	FindListMap(sql string, args ...interface{}) (results []map[string]interface{}, err error)
 	FindListByPage(dest interface{}, tableName, fields, where, orderBy string, skip, take int, args ...interface{}) error
+	Scalar(sql string,args ...interface{})(result interface{},err error)
 	Count(sql string, args ...interface{}) (count int64, err error)
 	QuerySum(sql string, args ...interface{}) (sum int64, err error)
 	QueryMax(sql string, args ...interface{}) (data interface{}, err error)
