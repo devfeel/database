@@ -1,10 +1,8 @@
 package postgressql
 
 import (
-	"fmt"
 	"errors"
 	"strconv"
-
 	"github.com/devfeel/database"
 )
 
