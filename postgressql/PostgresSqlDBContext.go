@@ -1,6 +1,7 @@
 package postgressql
 
 import (
+	"fmt"
 	"errors"
 	"strconv"
 
@@ -120,6 +121,10 @@ func (ctx *PostgresSqlDBContext) FindListByPage(dest interface{}, tableName, fie
 	return err
 }
 
+func (ctx *PostgresSqlDBContext) Scalar(sql string,args ...interface{})(result interface{},err error){
+	return ctx.DBCommand.Scalar(sql, args...)
+}
+
 // Count query count data with sql, return int64
 func (ctx *PostgresSqlDBContext) Count(sql string, args ...interface{}) (count int64, err error) {
 	return ctx.DBCommand.QueryCount(sql, args...)
@@ -139,7 +144,8 @@ func (ctx *PostgresSqlDBContext) QueryMax(sql string, args ...interface{}) (data
 	if result == nil || len(result) == 0 {
 		return nil, errors.New("no data return")
 	}
-	data = result[0][""]
+	fmt.Println(result)
+	data = result[0]["max"]
 	return data, err
 }
 

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 	"sync"
-
 	"github.com/devfeel/database/internal"
 	_ "github.com/lib/pq"
 )
@@ -174,6 +173,37 @@ func (command *PostgressCommand) Query(commandText string, args ...interface{}) 
 	return records, err
 }
 
+//
+//
+func (command *PostgressCommand) Scalar(commandText string,args ...interface{})(result interface{},err error){
+	logTitle := getLogTitle("Scalar", commandText+fmt.Sprint(args...))
+	sqlPool, err := command.getSqlPool()
+	if err != nil {
+		command.Error(err, logTitle+" getSqlPool error - "+err.Error())
+		return nil, err
+	}
+	rows, err := sqlPool.Query(commandText, args...)
+	if err != nil {
+		command.Error(err, logTitle+" Query error - "+err.Error())
+		return nil, err
+	} else {
+		command.Debug(logTitle + " Query success")
+	}
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
+	var data interface{}
+	if rows.Next() {
+		err = rows.Scan(&data)
+		if err != nil {
+			command.Error(err, logTitle+" scan count error - "+err.Error())
+			return 0, err
+		}
+	}
+	return data, nil
+}
 // QueryCount executes a query that returns count column
 func (command *PostgressCommand) QueryCount(commandText string, args ...interface{}) (int64, error) {
 	logTitle := getLogTitle("QueryCount", commandText+fmt.Sprint(args...))
