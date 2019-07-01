@@ -1,6 +1,7 @@
 package postgressql
 
 import (
+	"strconv"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -70,11 +71,11 @@ func (command *PostgressCommand) getSqlPool() (*sql.DB, error) {
 // ExecProc executes proc with name
 func (command *PostgressCommand) ExecProc(procName string, args ...interface{}) (records []map[string]interface{}, err error) {
 	var keyValue string
-	for range args {
+	for i,_:= range args {
 		if keyValue != "" {
 			keyValue += ","
 		}
-		keyValue += "?"
+		keyValue += "$"+ strconv.Itoa((i+1))
 	}
 	sqlStmt := "SELECT  " + procName + " (#KEY=VALUE#)"
 	sqlStmt = strings.Replace(sqlStmt, "#KEY=VALUE#", keyValue, -1)
