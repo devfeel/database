@@ -47,7 +47,7 @@ func (ctx *PostgresSqlDBContext) Insert(sql string, args ...interface{}) (n int6
 	if err != nil {
 		return 0, err
 	}
-	rows, err := result.LastInsertId()
+	rows, err := result.RowsAffected()
 	return rows, err
 }
 
