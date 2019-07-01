@@ -144,8 +144,7 @@ func (ctx *PostgresSqlDBContext) QueryMax(sql string, args ...interface{}) (data
 	if result == nil || len(result) == 0 {
 		return nil, errors.New("no data return")
 	}
-	fmt.Println(result)
-	data = result[0]["max"]
+	data = result[0][""]
 	return data, err
 }
 
