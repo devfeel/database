@@ -1,13 +1,13 @@
 package postgressql
 
 import (
-	"strconv"
 	"database/sql"
 	"fmt"
-	"strings"
-	"sync"
 	"github.com/devfeel/database/internal"
 	_ "github.com/lib/pq"
+	"strconv"
+	"strings"
+	"sync"
 )
 
 var (
@@ -70,11 +70,11 @@ func (command *PostgressCommand) getSqlPool() (*sql.DB, error) {
 // ExecProc executes proc with name
 func (command *PostgressCommand) ExecProc(procName string, args ...interface{}) (records []map[string]interface{}, err error) {
 	var keyValue string
-	for i,_:= range args {
+	for i, _ := range args {
 		if keyValue != "" {
 			keyValue += ","
 		}
-		keyValue += "$"+ strconv.Itoa((i+1))
+		keyValue += "$" + strconv.Itoa((i + 1))
 	}
 	sqlStmt := "SELECT  " + procName + " (#KEY=VALUE#)"
 	sqlStmt = strings.Replace(sqlStmt, "#KEY=VALUE#", keyValue, -1)
@@ -173,9 +173,8 @@ func (command *PostgressCommand) Query(commandText string, args ...interface{}) 
 	return records, err
 }
 
-//
-//
-func (command *PostgressCommand) Scalar(commandText string,args ...interface{})(result interface{},err error){
+// Scalar
+func (command *PostgressCommand) Scalar(commandText string, args ...interface{}) (result interface{}, err error) {
 	logTitle := getLogTitle("Scalar", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
@@ -204,6 +203,7 @@ func (command *PostgressCommand) Scalar(commandText string,args ...interface{})(
 	}
 	return data, nil
 }
+
 // QueryCount executes a query that returns count column
 func (command *PostgressCommand) QueryCount(commandText string, args ...interface{}) (int64, error) {
 	logTitle := getLogTitle("QueryCount", commandText+fmt.Sprint(args...))

@@ -1,9 +1,8 @@
 package postgressql
 
 import (
-	"errors"
-	"strconv"
 	"github.com/devfeel/database"
+	"strconv"
 )
 
 const (
@@ -119,42 +118,35 @@ func (ctx *PostgresSqlDBContext) FindListByPage(dest interface{}, tableName, fie
 	return err
 }
 
-func (ctx *PostgresSqlDBContext) Scalar(sql string,args ...interface{})(result interface{},err error){
+// Scalar
+func (ctx *PostgresSqlDBContext) Scalar(sql string, args ...interface{}) (result interface{}, err error) {
 	return ctx.DBCommand.Scalar(sql, args...)
 }
 
 // Count query count data with sql, return int64
 func (ctx *PostgresSqlDBContext) Count(sql string, args ...interface{}) (count int64, err error) {
-	return ctx.DBCommand.QueryCount(sql, args...)
+	result, err := ctx.DBCommand.Scalar(sql, args...)
+	if err == nil {
+		count = result.(int64)
+	}
+	return count, err
 }
 
 // QuerySum query sum data with sql, return int64
 func (ctx *PostgresSqlDBContext) QuerySum(sql string, args ...interface{}) (sum int64, err error) {
-	return ctx.DBCommand.QueryCount(sql, args...)
+	result, err := ctx.DBCommand.Scalar(sql, args...)
+	if err == nil {
+		sum = result.(int64)
+	}
+	return sum, err
 }
 
 // QueryMax query max value with sql, return interface{}
 func (ctx *PostgresSqlDBContext) QueryMax(sql string, args ...interface{}) (data interface{}, err error) {
-	result, err := ctx.DBCommand.Query(sql, args...)
-	if err != nil {
-		return nil, err
-	}
-	if result == nil || len(result) == 0 {
-		return nil, errors.New("no data return")
-	}
-	data = result[0][""]
-	return data, err
+	return ctx.DBCommand.Scalar(sql, args...)
 }
 
 // QueryMin query min value with sql, return interface{}
 func (ctx *PostgresSqlDBContext) QueryMin(sql string, args ...interface{}) (data interface{}, err error) {
-	result, err := ctx.DBCommand.Query(sql, args...)
-	if err != nil {
-		return nil, err
-	}
-	if result == nil || len(result) == 0 {
-		return nil, errors.New("no data return")
-	}
-	data = result[0][""]
-	return data, err
+	return ctx.DBCommand.Query(sql, args...)
 }

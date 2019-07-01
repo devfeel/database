@@ -4,8 +4,8 @@ import (
 	"testing"
 )
 
-
 var db = NewPostgresSqlDBContext("host=127.0.0.1 port=5432 user=postgres password=123456 dbname=mytest sslmode=disable")
+
 type UserInfo struct {
 	ID   string `mapper:"id"`
 	Name string `mapper:"name"`
@@ -30,7 +30,7 @@ func TestPostgresSqlDBContext_Update(t *testing.T) {
 }
 
 func TestPostgresSqlDBContext_ExecProc(t *testing.T) {
-	
+
 	result, err := db.ExecProc("add", 1, 2)
 	if err != nil {
 		t.Error(err)
@@ -50,7 +50,7 @@ func TestPostgresSqlDBContext_FindOne(t *testing.T) {
 }
 
 func TestPostgresSqlDBContext_FindOneMap(t *testing.T) {
-	result,err := db.FindOneMap("SELECT * FROM userinfo where id=$1 limit 1", 1)
+	result, err := db.FindOneMap("SELECT * FROM userinfo where id=$1 limit 1", 1)
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -68,10 +68,9 @@ func TestPostgresSqlDBContext_FindList(t *testing.T) {
 	}
 }
 
-
 func TestPostgresSqlDBContext_FindListByPage(t *testing.T) {
 	var results []*UserInfo
-	err := db.FindListByPage(&results, "userinfo", "*", "id=$1", "id ASC", 10, 0,1)
+	err := db.FindListByPage(&results, "userinfo", "*", "id=$1", "id ASC", 10, 0, 1)
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -94,29 +93,29 @@ func TestPostgresSqlDBContext_Scalar(t *testing.T) {
 		t.Error(err)
 	} else {
 		t.Log(sum)
-    }
+	}
 }
 func TestPostgresSqlDBContext_Count(t *testing.T) {
-	count, err := db.Scalar("select count(id) from userinfo")
+	count, err := db.Count("select count(id) from userinfo")
 	if err != nil {
 		t.Error(err)
 	} else {
 		t.Log(count)
-    }
+	}
 }
 func TestPostgresSqlDBContext_Max(t *testing.T) {
-	max, err := db.Scalar("select max(id) from userinfo")
+	max, err := db.QueryMax("select max(id) from userinfo")
 	if err != nil {
 		t.Error(err)
 	} else {
 		t.Log(max)
-    }
+	}
 }
 func TestPostgresSqlDBContext_Min(t *testing.T) {
-	min, err := db.Scalar("select min(id) from userinfo")
+	min, err := db.QueryMin("select min(id) from userinfo")
 	if err != nil {
 		t.Error(err)
 	} else {
 		t.Log(min)
-    }
+	}
 }
