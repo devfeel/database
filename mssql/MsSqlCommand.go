@@ -172,18 +172,19 @@ func (command *MsSqlCommand) Query(commandText string, args ...interface{}) (rec
 	return records, err
 }
 
-// QueryCount executes a query that returns count column
-func (command *MsSqlCommand) QueryCount(commandText string, args ...interface{}) (int64, error) {
-	logTitle := getLogTitle("QueryCount", commandText+fmt.Sprint(args...))
+// Scalar executes a query that returns first row.
+// The args are for any placeholder parameters in the query.
+func (command *MsSqlCommand) Scalar(commandText string, args ...interface{}) (interface{}, error) {
+	logTitle := getLogTitle("Scalar", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
 		command.Error(err, logTitle+" getSqlPool error - "+err.Error())
-		return 0, err
+		return nil, err
 	}
 	rows, err := sqlPool.Query(commandText, args...)
 	if err != nil {
 		command.Error(err, logTitle+" Query error - "+err.Error())
-		return 0, err
+		return nil, err
 	} else {
 		command.Debug(logTitle + " Query success")
 	}
@@ -192,15 +193,15 @@ func (command *MsSqlCommand) QueryCount(commandText string, args ...interface{})
 			rows.Close()
 		}
 	}()
-	count := int64(0)
+	var data interface{}
 	if rows.Next() {
-		err = rows.Scan(&count)
+		err = rows.Scan(&data)
 		if err != nil {
-			command.Error(err, logTitle+" scan count error - "+err.Error())
-			return 0, err
+			command.Error(err, logTitle+" scan data error - "+err.Error())
+			return nil, err
 		}
 	}
-	return count, nil
+	return data, nil
 }
 
 // getLogTitle return log title

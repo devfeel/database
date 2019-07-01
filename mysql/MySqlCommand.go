@@ -14,7 +14,7 @@ var (
 	sqlPoolMutex *sync.RWMutex
 )
 
-const(
+const (
 	DriverName = "mysql"
 )
 
@@ -80,9 +80,9 @@ func (command *MySqlCommand) ExecProc(procName string, args ...interface{}) (rec
 	logTitle := getLogTitle("ExecProc", sqlStmt)
 	records, err = command.Query(sqlStmt, args...)
 	if err != nil {
-		command.Error(err, logTitle+" error - " + err.Error())
-	}else{
-		command.Debug(logTitle+" success")
+		command.Error(err, logTitle+" error - "+err.Error())
+	} else {
+		command.Debug(logTitle + " success")
 	}
 	return records, err
 }
@@ -90,15 +90,15 @@ func (command *MySqlCommand) ExecProc(procName string, args ...interface{}) (rec
 // Exec executes a prepared statement with the given arguments and
 // returns a Result summarizing the effect of the statement.
 func (command *MySqlCommand) Exec(commandText string, args ...interface{}) (result sql.Result, err error) {
-	logTitle := getLogTitle("Exec", commandText + fmt.Sprint(args...))
+	logTitle := getLogTitle("Exec", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
-		command.Error(err, logTitle+" getSqlPool error - " + err.Error())
+		command.Error(err, logTitle+" getSqlPool error - "+err.Error())
 		return nil, err
 	}
 	stmt, err := sqlPool.Prepare(commandText)
 	if err != nil {
-		command.Error(err, logTitle+" Prepare error - " + err.Error())
+		command.Error(err, logTitle+" Prepare error - "+err.Error())
 		return nil, err
 	}
 	defer func() {
@@ -107,29 +107,29 @@ func (command *MySqlCommand) Exec(commandText string, args ...interface{}) (resu
 		}
 	}()
 	result, err = stmt.Exec(args...)
-	if err!=nil{
-		command.Error(err, logTitle+" Exec error - " + err.Error())
-	}else{
-		command.Debug(logTitle+" Exec success")
+	if err != nil {
+		command.Error(err, logTitle+" Exec error - "+err.Error())
+	} else {
+		command.Debug(logTitle + " Exec success")
 	}
 	return result, err
 }
 
 // Select executes a query that returns dest interface{}, typically a SELECT.
 // The args are for any placeholder parameters in the query.
-func (command *MySqlCommand) Select(dest interface{}, commandText string, args ...interface{})  (rowsNum int, err error) {
-	logTitle := getLogTitle("Select", commandText + fmt.Sprint(args...))
+func (command *MySqlCommand) Select(dest interface{}, commandText string, args ...interface{}) (rowsNum int, err error) {
+	logTitle := getLogTitle("Select", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
-		command.Error(err, logTitle+" getSqlPool error - " + err.Error())
+		command.Error(err, logTitle+" getSqlPool error - "+err.Error())
 		return internal.Zero, err
 	}
 	rows, err := sqlPool.Query(commandText, args...)
 	if err != nil {
-		command.Error(err, logTitle+" Query error - " + err.Error())
+		command.Error(err, logTitle+" Query error - "+err.Error())
 		return internal.Zero, err
-	}else{
-		command.Debug(logTitle+" Query success")
+	} else {
+		command.Debug(logTitle + " Query success")
 	}
 	defer func() {
 		if rows != nil {
@@ -142,18 +142,18 @@ func (command *MySqlCommand) Select(dest interface{}, commandText string, args .
 // Query executes a query that returns rows, typically a SELECT.
 // The args are for any placeholder parameters in the query.
 func (command *MySqlCommand) Query(commandText string, args ...interface{}) (records []map[string]interface{}, err error) {
-	logTitle := getLogTitle("Query", commandText + fmt.Sprint(args...))
+	logTitle := getLogTitle("Query", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
-		command.Error(err, logTitle+" getSqlPool error - " + err.Error())
+		command.Error(err, logTitle+" getSqlPool error - "+err.Error())
 		return nil, err
 	}
 	rows, err := sqlPool.Query(commandText, args...)
 	if err != nil {
-		command.Error(err, logTitle+" Query error - " + err.Error())
+		command.Error(err, logTitle+" Query error - "+err.Error())
 		return nil, err
-	}else{
-		command.Debug(logTitle+" Query success")
+	} else {
+		command.Debug(logTitle + " Query success")
 	}
 	defer func() {
 		if rows != nil {
@@ -172,18 +172,19 @@ func (command *MySqlCommand) Query(commandText string, args ...interface{}) (rec
 	return records, err
 }
 
-// QueryCount executes a query that returns count column
-func (command *MySqlCommand) QueryCount(commandText string, args ...interface{}) (int64, error) {
-	logTitle := getLogTitle("QueryCount", commandText+fmt.Sprint(args...))
+// Scalar executes a query that returns first row.
+// The args are for any placeholder parameters in the query.
+func (command *MySqlCommand) Scalar(commandText string, args ...interface{}) (interface{}, error) {
+	logTitle := getLogTitle("Scalar", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
 	if err != nil {
 		command.Error(err, logTitle+" getSqlPool error - "+err.Error())
-		return 0, err
+		return nil, err
 	}
 	rows, err := sqlPool.Query(commandText, args...)
 	if err != nil {
 		command.Error(err, logTitle+" Query error - "+err.Error())
-		return 0, err
+		return nil, err
 	} else {
 		command.Debug(logTitle + " Query success")
 	}
@@ -192,17 +193,16 @@ func (command *MySqlCommand) QueryCount(commandText string, args ...interface{})
 			rows.Close()
 		}
 	}()
-	count := int64(0)
+	var data interface{}
 	if rows.Next() {
-		err = rows.Scan(&count)
+		err = rows.Scan(&data)
 		if err != nil {
-			command.Error(err, logTitle+" scan count error - "+err.Error())
-			return 0, err
+			command.Error(err, logTitle+" scan data error - "+err.Error())
+			return nil, err
 		}
 	}
-	return count, nil
+	return data, nil
 }
-
 
 // getLogTitle return log title
 func getLogTitle(commandName, commandText string) string {

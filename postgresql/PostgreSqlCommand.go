@@ -1,4 +1,4 @@
-package postgressql
+package postgresql
 
 import (
 	"database/sql"
@@ -173,7 +173,8 @@ func (command *PostgressCommand) Query(commandText string, args ...interface{}) 
 	return records, err
 }
 
-// Scalar
+// Scalar executes a query that returns first row.
+// The args are for any placeholder parameters in the query.
 func (command *PostgressCommand) Scalar(commandText string, args ...interface{}) (result interface{}, err error) {
 	logTitle := getLogTitle("Scalar", commandText+fmt.Sprint(args...))
 	sqlPool, err := command.getSqlPool()
@@ -198,41 +199,10 @@ func (command *PostgressCommand) Scalar(commandText string, args ...interface{})
 		err = rows.Scan(&data)
 		if err != nil {
 			command.Error(err, logTitle+" scan count error - "+err.Error())
-			return 0, err
+			return nil, err
 		}
 	}
 	return data, nil
-}
-
-// QueryCount executes a query that returns count column
-func (command *PostgressCommand) QueryCount(commandText string, args ...interface{}) (int64, error) {
-	logTitle := getLogTitle("QueryCount", commandText+fmt.Sprint(args...))
-	sqlPool, err := command.getSqlPool()
-	if err != nil {
-		command.Error(err, logTitle+" getSqlPool error - "+err.Error())
-		return 0, err
-	}
-	rows, err := sqlPool.Query(commandText, args...)
-	if err != nil {
-		command.Error(err, logTitle+" Query error - "+err.Error())
-		return 0, err
-	} else {
-		command.Debug(logTitle + " Query success")
-	}
-	defer func() {
-		if rows != nil {
-			rows.Close()
-		}
-	}()
-	count := int64(0)
-	if rows.Next() {
-		err = rows.Scan(&count)
-		if err != nil {
-			command.Error(err, logTitle+" scan count error - "+err.Error())
-			return 0, err
-		}
-	}
-	return count, nil
 }
 
 // getLogTitle return log title

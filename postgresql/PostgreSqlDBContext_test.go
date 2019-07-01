@@ -1,4 +1,4 @@
-package postgressql
+package postgresql
 
 import (
 	"testing"
