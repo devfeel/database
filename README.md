@@ -1,5 +1,9 @@
 # database
-include mongodb,mysql,sqlserver,sqlite
+Include mongodb,mysql,sqlserver,sqlite,postgreSql.
+
+Support Connection security and stat data with db query.
+
+Support scan interface{} and map
 
 # 依赖项
 * mongo：gopkg.in/mgo.v2
