@@ -3,18 +3,17 @@ package mongo
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/devfeel/database/internal"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"github.com/devfeel/database/internal"
 	"sync"
 )
 
 var mgoSessionPool *sync.Map
 
-func init(){
+func init() {
 	mgoSessionPool = new(sync.Map)
 }
-
 
 type MongoCommand struct {
 	internal.BaseCommand
@@ -25,7 +24,7 @@ type MongoCommand struct {
 type Selector map[string]interface{}
 
 const (
-	Field_ID = "_id" //field表达式
+	Field_ID   = "_id" //field表达式
 	DriverName = "mongodb"
 )
 
@@ -40,8 +39,6 @@ func NewObjectId() bson.ObjectId {
 func CreateUpdateSet(selector Selector) Selector {
 	return Selector{"$set": selector}
 }
-
-
 
 func (cmd *MongoCommand) SetConn(conn, dbName string) error {
 	cmd.Connection = conn
@@ -170,7 +167,6 @@ func (cmd *MongoCommand) UpdateBlob(collectionName string, selector interface{},
 	return err
 }
 
-
 /*更新指定字段
 * Author: https://github.com/devfeel
 * LastUpdateTime: 2017-11-11 10:00
@@ -295,7 +291,7 @@ func (cmd *MongoCommand) FindList(collectionName string, selector interface{}, s
 	if err != nil {
 		cmd.Error(err, logTitle+"["+fmt.Sprint(selector)+"]["+fmt.Sprint(skip, limit)+"]error - "+err.Error())
 	} else {
-		cmd.Debug(logTitle + "[" + fmt.Sprint(selector) + "]["+fmt.Sprint(skip, limit)+"]Success")
+		cmd.Debug(logTitle + "[" + fmt.Sprint(selector) + "][" + fmt.Sprint(skip, limit) + "]Success")
 	}
 	return err
 }
@@ -348,7 +344,6 @@ func (cmd *MongoCommand) Count(collectionName string, selector interface{}) (cou
 	return count, err
 }
 
-
 func (cmd *MongoCommand) GetStat() (result map[string]interface{}, err error) {
 	db, err := cmd.GetDataBase()
 	if err != nil {
@@ -365,20 +360,19 @@ func getLogTitle(commandName string, collectionName string) string {
 	return "database.MongoCommand:" + commandName + "[" + collectionName + "]:"
 }
 
-
 // getSessionCopy get seesion copy with conn from pool
-func getSessionCopy(conn string) (*mgo.Session, error){
-	data, isOk:=mgoSessionPool.Load(conn)
-	if isOk{
+func getSessionCopy(conn string) (*mgo.Session, error) {
+	data, isOk := mgoSessionPool.Load(conn)
+	if isOk {
 		session, isSuccess := data.(*mgo.Session)
-		if isSuccess{
+		if isSuccess {
 			return session.Clone(), nil
 		}
 	}
 	session, err := mgo.Dial(conn)
-	if err!= nil{
+	if err != nil {
 		return nil, err
-	}else{
+	} else {
 		mgoSessionPool.Store(conn, session)
 		return session.Clone(), nil
 	}

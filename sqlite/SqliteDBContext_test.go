@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"fmt"
+	"github.com/devfeel/database"
 	"github.com/devfeel/mapper"
 	"testing"
 	"time"
@@ -30,6 +31,20 @@ func TestSqliteDBContext_InitTable(t *testing.T) {
     `
 	fmt.Println(db.GetCommand().Exec(sql_table))
 
+}
+
+func TestSqliteDBContext_ShowCountData(t *testing.T) {
+	result := new(DemoInfo)
+	db.FindOne(result, "SELECT * FROM Demo limit 1")
+	db.FindOne(result, "SELECT * FROMDemo limit 1")
+	db.Insert("INSERT INTO Demo(username, departname, created) VALUES(?, ?, ?)", "name1", "dev", "2019-01-01")
+	db.Update("UPDATE Demo set departname = ? where uid = ?", "test", 1)
+	wantItems := 4
+	if wantItems == len(database.ShowStateData()) {
+		t.Log("DataBase Count Data success", database.ShowStateData())
+	} else {
+		t.Error("DataBase Count Data failed", database.ShowStateData())
+	}
 }
 
 func TestSqliteDBContext_FindOne(t *testing.T) {

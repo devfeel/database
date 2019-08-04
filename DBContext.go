@@ -1,8 +1,11 @@
 package database
 
+type PasswordCallback func(string) string
+
 type DBContext interface {
 	GetCommand() DBCommand
 	Init(conn string)
+	SetPasswordCallback(PasswordCallback)
 	ExecProc(procName string, args ...interface{}) (records []map[string]interface{}, err error)
 	Insert(sql string, args ...interface{}) (n int64, err error)
 	Update(sql string, args ...interface{}) (n int64, err error)
