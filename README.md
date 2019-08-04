@@ -1,9 +1,9 @@
 # database
 Include mongodb,mysql,sqlserver,sqlite,postgreSql.
 
-Support Connection security and stat data with db query.
+Support connection security and stat data with db query.
 
-Support scan interface{} and map
+Support scan data to interface{} or map.
 
 Example: https://github.com/devfeel/dotweb-start/tree/master/protected/repository
 
