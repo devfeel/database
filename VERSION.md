@@ -1,5 +1,14 @@
 # database
 
+#### version 0.6
+* New Feature: DBContext add SetPasswordCallback(PasswordCallback)
+* New Feature: add Counter used to stat db query
+* New Feature: add database.ShowStateData to show stat data with map[string]int64
+* How to get stat data:
+    - call database.ShowStateData() to get current stat data
+    - data like map[INSERT:1 SELECT:1 SELECT_ERROR:1 UPDATE:1] 
+* 2019-08-04 12:00
+
 #### version 0.5
 * New Feature: add postgreSql support
 * Architecture: add Scalar in DBContext & DBCommand used to query data on first column&row
