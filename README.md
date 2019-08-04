@@ -5,6 +5,8 @@ Support Connection security and stat data with db query.
 
 Support scan interface{} and map
 
+Example: https://github.com/devfeel/dotweb-start/tree/master/protected/repository
+
 # 依赖项
 * mongo：gopkg.in/mgo.v2
 * mssql：github.com/denisenkom/go-mssqldb
