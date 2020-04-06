@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"github.com/devfeel/database"
+	"github.com/devfeel/database/internal/convert"
 	"github.com/devfeel/database/internal/counter"
 	"strconv"
 )
@@ -132,7 +133,7 @@ func (ctx *MySqlDBContext) Scalar(sql string, args ...interface{}) (result inter
 func (ctx *MySqlDBContext) Count(sql string, args ...interface{}) (count int64, err error) {
 	result, err := ctx.dbCommand.Scalar(sql, args...)
 	if err == nil {
-		count = result.(int64)
+		count, err = convert.UInt8SliceToInt64(result.([]uint8))
 	}
 	counter.IncHandler(counter.TOKEN_SELECT, err, 1)
 	return count, err

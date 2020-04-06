@@ -1,5 +1,10 @@
 # database
 
+
+#### version 0.6.1
+* fix: fixed MySqlDBContext.Count Convert int64 error
+* 2020-03-23 20:00
+
 #### version 0.6
 * New Feature: DBContext add SetPasswordCallback(PasswordCallback)
 * New Feature: add Counter used to stat db query
