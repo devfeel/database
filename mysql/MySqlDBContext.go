@@ -133,7 +133,11 @@ func (ctx *MySqlDBContext) Scalar(sql string, args ...interface{}) (result inter
 func (ctx *MySqlDBContext) Count(sql string, args ...interface{}) (count int64, err error) {
 	result, err := ctx.dbCommand.Scalar(sql, args...)
 	if err == nil {
-		count, err = convert.UInt8SliceToInt64(result.([]uint8))
+		if _, ok := result.([]uint8); ok {
+			count, err = convert.UInt8SliceToInt64(result.([]uint8))
+		} else {
+			count = result.(int64)
+		}
 	}
 	counter.IncHandler(counter.TOKEN_SELECT, err, 1)
 	return count, err
